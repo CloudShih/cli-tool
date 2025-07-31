@@ -544,23 +544,27 @@ class ModernMainWindow(QMainWindow):
     
     def show_navigation_toast(self, key: str):
         """顯示導航切換吐司通知"""
-        page_names = {
-            "welcome": "歡迎頁面",
-            "fd": "檔案搜尋",
-            "poppler": "PDF 處理",
-            "themes": "主題設定",
-            "components": "UI 組件"
-        }
-        
-        page_name = page_names.get(key, key.title())
-        icon = "🏠" if key == "welcome" else "🔍" if key == "fd" else "📄" if key == "poppler" else "🎨" if key == "themes" else "🧩" if key == "components" else "🔧"
-        
-        if self.toast_manager:
-            self.toast_manager.show_progress_toast(
-                f"{icon} {page_name}", 
-                "頁面切換中...", 
-                duration=1500
-            )
+        try:
+            page_names = {
+                "welcome": "歡迎頁面",
+                "fd": "檔案搜尋",
+                "poppler": "PDF 處理",
+                "themes": "主題設定",
+                "components": "UI 組件"
+            }
+            
+            page_name = page_names.get(key, key.title())
+            icon = "🏠" if key == "welcome" else "🔍" if key == "fd" else "📄" if key == "poppler" else "🎨" if key == "themes" else "🧩" if key == "components" else "🔧"
+            
+            if self.toast_manager:
+                self.toast_manager.show_progress_toast(
+                    f"{icon} {page_name}", 
+                    "頁面切換中...", 
+                    duration=1500
+                )
+        except Exception as e:
+            logger.error(f"Error showing navigation toast: {e}")
+            # 不阻塞導航功能，繼續執行
     
     def apply_theme(self):
         """套用主題"""

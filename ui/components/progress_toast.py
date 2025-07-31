@@ -82,7 +82,7 @@ class ProgressToast(QFrame):
         self.slide_animation.setEasingCurve(QEasingCurve.OutCubic)
         
         # 自動隱藏計時器
-        self.hide_timer = QTimer()
+        self.hide_timer = QTimer(self)  # 設置父對象確保在正確線程中
         self.hide_timer.setSingleShot(True)
         self.hide_timer.timeout.connect(self.hide_with_animation)
     
@@ -107,7 +107,7 @@ class ProgressToast(QFrame):
         self.is_showing = True
         
         # 設置初始位置（右下角外側）
-        if self.parent():
+        if self.parent() and hasattr(self.parent(), 'rect'):
             parent_rect = self.parent().rect()
             start_pos = QPoint(
                 parent_rect.right() - self.width() - 20,
@@ -133,7 +133,7 @@ class ProgressToast(QFrame):
         self.fade_animation.start()
         
         # 滑入動畫
-        if self.parent():
+        if self.parent() and hasattr(self.parent(), 'rect'):
             self.slide_animation.setStartValue(start_pos)
             self.slide_animation.setEndValue(end_pos)
             self.slide_animation.start()
@@ -176,7 +176,7 @@ class ProgressToast(QFrame):
     def resizeEvent(self, event):
         """調整大小事件 - 確保吐司通知在正確位置"""
         super().resizeEvent(event)
-        if self.is_showing and self.parent():
+        if self.is_showing and self.parent() and hasattr(self.parent(), 'rect'):
             parent_rect = self.parent().rect()
             new_pos = QPoint(
                 parent_rect.right() - self.width() - 20,
@@ -198,8 +198,8 @@ class ToastManager:
         toast = ProgressToast(self.parent, message, duration)
         
         # 計算位置（堆疊顯示）
-        if self.parent():
-            parent_rect = self.parent().rect()
+        if self.parent and hasattr(self.parent, 'rect'):
+            parent_rect = self.parent.rect()
             y_offset = sum(t.height() + self.toast_spacing for t in self.active_toasts)
             
             toast.move(
@@ -222,10 +222,10 @@ class ToastManager:
     
     def reposition_toasts(self):
         """重新定位吐司通知"""
-        if not self.parent():
+        if not self.parent or not hasattr(self.parent, 'rect'):
             return
         
-        parent_rect = self.parent().rect()
+        parent_rect = self.parent.rect()
         y_offset = 0
         
         for toast in reversed(self.active_toasts):  # 從底部開始
