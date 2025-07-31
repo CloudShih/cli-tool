@@ -18,23 +18,15 @@
     }
   },
   "ui": {
-    "theme": {
-      "name": "dark_professional",
-      "auto_switch": false,
-      "follow_system": false
-    },
+    "theme": "dark",
     "window": {
-      "width": 900,
-      "height": 650,
+      "width": 800,
+      "height": 600,
       "x": 100,
       "y": 100
     },
     "remember_window_state": true,
-    "show_tooltips": true,
-    "animations": {
-      "enabled": true,
-      "duration": 200
-    }
+    "show_tooltips": true
   },
   "general": {
     "auto_save_settings": true,

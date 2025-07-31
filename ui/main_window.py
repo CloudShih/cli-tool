@@ -15,6 +15,8 @@ from ui.components.buttons import ModernButton, PrimaryButton, IconButton
 from ui.components.indicators import StatusIndicator, LoadingSpinner
 from ui.components.progress_toast import ToastManager, show_progress_toast
 from ui.plugin_loader import PluginLoadingDialog
+from ui.responsive_layout import ResponsiveLayoutManager, get_screen_info
+from ui.animation_effects import animation_manager, animate_widget, AnimatedButton
 from config.config_manager import config_manager
 from core.plugin_manager import plugin_manager
 from ui.theme_manager import theme_manager
@@ -190,11 +192,16 @@ class NavigationSidebar(QFrame):
     
     def add_navigation_item(self, layout: QVBoxLayout, key: str, icon: str, text: str, selected: bool = False):
         """添加導航項目"""
-        button = ModernButton(f"{icon} {text}")
+        # 使用動畫按鈕
+        button = AnimatedButton(f"{icon} {text}")
         button.setProperty("sidebar-nav", True)
         button.setCheckable(True)
         button.setChecked(selected)
         button.clicked.connect(lambda: self.on_navigation_clicked(key))
+        
+        # 添加入場動畫
+        QTimer.singleShot(len(self.navigation_buttons) * 50, 
+                         lambda: animate_widget(button, 'slide_in', direction='left', duration=300))
         
         self.navigation_buttons[key] = button
         layout.addWidget(button)
@@ -281,8 +288,11 @@ class ModernMainWindow(QMainWindow):
         self.plugin_views = {}
         self.current_view = None
         self.toast_manager = None
+        self.responsive_manager = None
         self.setup_ui()
         self.setup_toast_manager()
+        self.setup_responsive_layout()
+        self.setup_animations()
         self.load_plugins()
         self.apply_theme()
         self.restore_window_state()
@@ -325,6 +335,57 @@ class ModernMainWindow(QMainWindow):
     def setup_toast_manager(self):
         """設置吐司通知管理器"""
         self.toast_manager = ToastManager(self)
+    
+    def setup_responsive_layout(self):
+        """設置響應式佈局"""
+        try:
+            self.responsive_manager = ResponsiveLayoutManager(self)
+            
+            # 記錄螢幕資訊
+            screen_info = get_screen_info()
+            logger.info(f"Screen info: {screen_info}")
+            
+            # 根據螢幕尺寸調整初始窗口大小
+            if screen_info:
+                available_width = screen_info.get('available_width', 1200)
+                available_height = screen_info.get('available_height', 800)
+                
+                # 設置合適的初始大小（螢幕的80%）
+                initial_width = min(1200, int(available_width * 0.8))
+                initial_height = min(800, int(available_height * 0.8))
+                
+                self.setMinimumSize(800, 600)  # 設置最小尺寸
+                self.resize(initial_width, initial_height)
+            
+        except Exception as e:
+            logger.error(f"Error setting up responsive layout: {e}")
+    
+    def setup_animations(self):
+        """設置動畫系統"""
+        try:
+            # 啟用動畫並設置速度
+            animation_manager.set_animations_enabled(True)
+            animation_manager.set_speed_factor(1.0)
+            
+            # 為主窗口元素添加入場動畫
+            QTimer.singleShot(100, self.animate_window_entrance)
+            
+        except Exception as e:
+            logger.error(f"Error setting up animations: {e}")
+    
+    def animate_window_entrance(self):
+        """主窗口入場動畫"""
+        try:
+            # 側邊欄滑入動畫
+            if hasattr(self, 'sidebar'):
+                animate_widget(self.sidebar, 'slide_in', direction='left', duration=400)
+            
+            # 歡迎頁面淡入動畫
+            if hasattr(self, 'welcome_page'):
+                animate_widget(self.welcome_page, 'fade_in', duration=600)
+            
+        except Exception as e:
+            logger.error(f"Error in window entrance animation: {e}")
     
     def create_menu_bar(self):
         """創建選單欄"""

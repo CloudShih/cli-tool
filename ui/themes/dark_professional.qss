@@ -281,6 +281,123 @@ QLabel[toast-detail="true"] {
     font-size: 11px;
 }
 
+/* ========== 響應式設計和動畫效果 ========== */
+
+/* 動畫按鈕增強效果 */
+QPushButton[animated="true"] {
+    background-color: #555555;
+    border: 1px solid #666666;
+    border-radius: 4px;
+    padding: 8px 16px;
+    transition: all 0.3s ease;
+}
+
+QPushButton[animated="true"]:hover {
+    background-color: #666666;
+    border-color: #777777;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+QPushButton[animated="true"]:pressed {
+    background-color: #444444;
+    border-color: #555555;
+    transform: translateY(0px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 響應式佈局樣式 */
+QWidget[responsive="true"] {
+    background-color: transparent;
+}
+
+/* 小螢幕適配 (手機) */
+QWidget[breakpoint="xs"] QLabel,
+QWidget[breakpoint="sm"] QLabel {
+    font-size: 10px;
+}
+
+QWidget[breakpoint="xs"] QPushButton,
+QWidget[breakpoint="sm"] QPushButton {
+    padding: 6px 12px;
+    font-size: 11px;
+    min-height: 28px;
+}
+
+/* 中等螢幕適配 (平板) */
+QWidget[breakpoint="md"] QLabel {
+    font-size: 11px;
+}
+
+QWidget[breakpoint="md"] QPushButton {
+    padding: 7px 14px;
+    font-size: 12px;
+    min-height: 32px;
+}
+
+/* 大螢幕適配 (桌面) */
+QWidget[breakpoint="lg"] QLabel,
+QWidget[breakpoint="xl"] QLabel,
+QWidget[breakpoint="xxl"] QLabel {
+    font-size: 12px;
+}
+
+QWidget[breakpoint="lg"] QPushButton,
+QWidget[breakpoint="xl"] QPushButton,
+QWidget[breakpoint="xxl"] QPushButton {
+    padding: 8px 16px;
+    font-size: 12px;
+    min-height: 36px;
+}
+
+/* 動畫狀態樣式 */
+QWidget[animating="true"] {
+    /* 動畫期間的樣式調整 */
+}
+
+/* 響應式側邊欄 */
+QFrame[sidebar="true"][collapsed="true"] {
+    max-width: 0px;
+    min-width: 0px;
+}
+
+QFrame[sidebar="true"][collapsed="false"] {
+    max-width: 200px;
+    min-width: 200px;
+}
+
+/* 響應式內容區域 */
+QStackedWidget[responsive="true"] {
+    margin: 8px;
+}
+
+QWidget[breakpoint="xs"] QStackedWidget[responsive="true"],
+QWidget[breakpoint="sm"] QStackedWidget[responsive="true"] {
+    margin: 4px;
+}
+
+QWidget[breakpoint="md"] QStackedWidget[responsive="true"] {
+    margin: 6px;
+}
+
+/* 動畫過渡效果 */
+* {
+    /* 平滑過渡效果 - 注意：Qt 的 QSS 不完全支援 CSS3 過渡
+       這些樣式主要是為了文檔記錄，實際動畫由程式碼控制 */
+}
+
+/* 漣漪效果容器 */
+QWidget[ripple="true"] {
+    background-color: transparent;
+    border: none;
+}
+
+/* 粒子效果容器 */
+QWidget[particles="true"] {
+    background-color: transparent;
+    border: none;
+}
+
 /* 按鈕樣式 */
 QPushButton {
     background-color: #555555;
