@@ -1,0 +1,19 @@
+# CLI Tool Dependencies
+# Core GUI Framework
+PyQt5>=5.15.0
+
+# Command line output processing
+ansi2html>=1.8.0
+
+# PDF processing
+pikepdf>=8.0.0
+
+# Testing framework
+pytest>=7.0.0
+pytest-qt>=4.2.0
+
+# Packaging and distribution
+pyinstaller>=5.0.0
+
+# Logging and utilities
+colorlog>=6.7.0

@@ -1,0 +1,37 @@
+{
+  "tools": {
+    "fd": {
+      "executable_path": "C:\\Users\\cloudchshih\\AppData\\Local\\Microsoft\\WinGet\\Packages\\sharkdp.fd_Microsoft.WinGet.Source_8wekyb3d8bbwe\\fd-v10.2.0-x86_64-pc-windows-msvc\\fd.exe",
+      "default_search_type": "both",
+      "default_hidden": false,
+      "default_case_sensitive": false
+    },
+    "poppler": {
+      "pdfinfo_path": "pdfinfo",
+      "pdftotext_path": "pdftotext",
+      "pdfimages_path": "pdfimages",
+      "pdfseparate_path": "pdfseparate",
+      "pdfunite_path": "pdfunite",
+      "pdftoppm_path": "pdftoppm",
+      "pdftohtml_path": "pdftohtml",
+      "qpdf_path": "qpdf"
+    }
+  },
+  "ui": {
+    "theme": "dark",
+    "window": {
+      "width": 800,
+      "height": 600,
+      "x": 100,
+      "y": 100
+    },
+    "remember_window_state": true,
+    "show_tooltips": true
+  },
+  "general": {
+    "auto_save_settings": true,
+    "max_output_lines": 1000,
+    "enable_logging": true,
+    "log_level": "INFO"
+  }
+}
