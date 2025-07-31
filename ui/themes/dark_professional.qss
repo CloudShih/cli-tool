@@ -19,6 +19,172 @@ QMainWindow {
     border: none;
 }
 
+/* ========== 新主窗口組件樣式 ========== */
+
+/* 側邊欄樣式 */
+QFrame[sidebar="true"] {
+    background-color: #1e1e1e;
+    border-right: 1px solid #404040;
+}
+
+/* 側邊欄標題 */
+QLabel[sidebar-title="true"] {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 0;
+}
+
+/* 側邊欄區段標題 */
+QLabel[sidebar-section="true"] {
+    color: #b0b0b0;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 15px 0 5px 0;
+    padding: 0 10px;
+}
+
+/* 側邊欄分隔線 */
+QFrame[sidebar-separator="true"] {
+    color: #404040;
+    margin: 10px 5px;
+}
+
+/* 側邊欄導航按鈕 */
+QPushButton[sidebar-nav="true"] {
+    background-color: transparent;
+    color: #d0d0d0;
+    border: none;
+    padding: 12px 15px;
+    text-align: left;
+    border-radius: 6px;
+    margin: 2px 5px;
+    font-size: 13px;
+}
+
+QPushButton[sidebar-nav="true"]:hover {
+    background-color: #404040;
+    color: #ffffff;
+}
+
+QPushButton[sidebar-nav="true"]:checked {
+    background-color: #007acc;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+QPushButton[sidebar-nav="true"]:pressed {
+    background-color: #005a9f;
+}
+
+/* 歡迎頁面樣式 */
+QLabel[welcome-title="true"] {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: bold;
+    margin: 20px 0;
+}
+
+QLabel[welcome-subtitle="true"] {
+    color: #b0b0b0;
+    font-size: 16px;
+    margin: 10px 0 40px 0;
+}
+
+QLabel[welcome-info="true"] {
+    color: #888888;
+    font-size: 14px;
+    margin: 20px 0;
+}
+
+/* 功能卡片樣式 */
+QFrame[feature-card="true"] {
+    background-color: #404040;
+    border: 1px solid #555555;
+    border-radius: 8px;
+    margin: 10px;
+}
+
+QFrame[feature-card="true"]:hover {
+    background-color: #4a4a4a;
+    border-color: #666666;
+}
+
+QLabel[feature-icon="true"] {
+    font-size: 36px;
+    margin: 10px 0;
+}
+
+QLabel[feature-title="true"] {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 5px 0;
+}
+
+QLabel[feature-description="true"] {
+    color: #b0b0b0;
+    font-size: 12px;
+    margin: 5px 10px 15px 10px;
+}
+
+/* 狀態欄樣式 */
+QStatusBar {
+    background-color: #1e1e1e;
+    border-top: 1px solid #404040;
+    color: #d0d0d0;
+    font-size: 12px;
+}
+
+QStatusBar::item {
+    border: none;
+}
+
+/* 選單欄樣式 */
+QMenuBar {
+    background-color: #2e2e2e;
+    color: #f0f0f0;
+    border-bottom: 1px solid #404040;
+}
+
+QMenuBar::item {
+    background-color: transparent;
+    padding: 8px 12px;
+}
+
+QMenuBar::item:selected {
+    background-color: #404040;
+    border-radius: 4px;
+}
+
+QMenu {
+    background-color: #3a3a3a;
+    color: #f0f0f0;
+    border: 1px solid #555555;
+    border-radius: 4px;
+}
+
+QMenu::item {
+    padding: 6px 20px;
+}
+
+QMenu::item:selected {
+    background-color: #007acc;
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: #555555;
+    margin: 5px 0;
+}
+
+/* 滾動區域樣式 */
+QScrollArea {
+    background-color: transparent;
+    border: none;
+}
+
 /* 按鈕樣式 */
 QPushButton {
     background-color: #555555;
