@@ -265,9 +265,10 @@ class RippleEffect(QWidget):
         self.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.setAttribute(Qt.WA_NoSystemBackground)
         self.ripples = []
-        self.animation_timer = QTimer()
+        self.animation_timer = QTimer(self)  # 設置父對象確保在正確線程中
         self.animation_timer.timeout.connect(self.update_ripples)
-        self.animation_timer.start(16)  # ~60 FPS
+        # 延遲啟動計時器，確保在主線程中啟動
+        QTimer.singleShot(0, lambda: self.animation_timer.start(16))
     
     def add_ripple(self, center: QPoint, max_radius: int = 100):
         """添加漣漪"""
@@ -324,9 +325,10 @@ class ParticleSystem(QWidget):
         super().__init__(parent)
         self.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.particles = []
-        self.animation_timer = QTimer()
+        self.animation_timer = QTimer(self)  # 設置父對象確保在正確線程中
         self.animation_timer.timeout.connect(self.update_particles)
-        self.animation_timer.start(16)  # ~60 FPS
+        # 延遲啟動計時器，確保在主線程中啟動
+        QTimer.singleShot(0, lambda: self.animation_timer.start(16))
     
     def emit_particles(self, position: QPoint, count: int = 10, 
                       color: QColor = QColor(70, 130, 180)):

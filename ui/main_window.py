@@ -513,6 +513,8 @@ class ModernMainWindow(QMainWindow):
     def on_navigation_changed(self, key: str):
         """處理導航變更"""
         try:
+            logger.info(f"Navigation changed to: {key}")
+            
             # 顯示切換反饋
             self.show_navigation_toast(key)
             
@@ -524,12 +526,17 @@ class ModernMainWindow(QMainWindow):
                 self.content_stack.setCurrentWidget(view)
                 
                 # 更新狀態欄訊息
-                if hasattr(view, 'windowTitle') and view.windowTitle():
-                    self.set_status(f"當前工具: {view.windowTitle()}", "ready")
+                if hasattr(view, 'windowTitle') and callable(getattr(view, 'windowTitle', None)):
+                    title = view.windowTitle()
+                    if title:
+                        self.set_status(f"當前工具: {title}", "ready")
+                    else:
+                        self.set_status(f"當前工具: {key.title()}", "ready")
                 else:
                     self.set_status(f"當前工具: {key.title()}", "ready")
             else:
                 logger.warning(f"Unknown navigation key: {key}")
+                self.set_status(f"未知頁面: {key}", "warning")
                 
         except Exception as e:
             logger.error(f"Error changing navigation: {e}")

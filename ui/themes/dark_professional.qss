@@ -295,15 +295,11 @@ QPushButton[animated="true"] {
 QPushButton[animated="true"]:hover {
     background-color: #666666;
     border-color: #777777;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 QPushButton[animated="true"]:pressed {
     background-color: #444444;
     border-color: #555555;
-    transform: translateY(0px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* 響應式佈局樣式 */
