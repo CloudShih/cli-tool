@@ -185,6 +185,102 @@ QScrollArea {
     border: none;
 }
 
+/* ========== 插件載入器樣式 ========== */
+
+/* 載入對話框 */
+QWidget[loading-dialog="true"] {
+    background-color: #2e2e2e;
+    border: 1px solid #555555;
+    border-radius: 8px;
+}
+
+/* 對話框標題 */
+QLabel[dialog-title="true"] {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+}
+
+/* 插件卡片 */
+QFrame[plugin-card="true"] {
+    background-color: #404040;
+    border: 1px solid #555555;
+    border-radius: 6px;
+    margin: 2px 0;
+}
+
+QFrame[plugin-card="true"]:hover {
+    background-color: #4a4a4a;
+    border-color: #666666;
+}
+
+QFrame[plugin-card="true"][loading="true"] {
+    background-color: #3a4a5a;
+    border-color: #4a6a8a;
+}
+
+QFrame[plugin-card="true"][success="true"] {
+    background-color: #3a5a3a;
+    border-color: #4a7a4a;
+}
+
+QFrame[plugin-card="true"][error="true"] {
+    background-color: #5a3a3a;
+    border-color: #7a4a4a;
+}
+
+/* 插件名稱 */
+QLabel[plugin-name="true"] {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* 插件描述 */
+QLabel[plugin-description="true"] {
+    color: #b0b0b0;
+    font-size: 11px;
+}
+
+/* 插件滾動區域 */
+QScrollArea[plugin-scroll="true"] {
+    background-color: transparent;
+    border: 1px solid #555555;
+    border-radius: 4px;
+}
+
+QScrollArea[plugin-scroll="true"] QWidget {
+    background-color: transparent;
+}
+
+/* ========== 進度吐司通知樣式 ========== */
+
+/* 進度吐司容器 */
+QFrame[progress-toast="true"] {
+    background-color: #3a3a3a;
+    border: 1px solid #555555;
+    border-radius: 8px;
+    color: #f0f0f0;
+}
+
+QFrame[progress-toast="true"]:hover {
+    background-color: #404040;
+    border-color: #666666;
+}
+
+/* 吐司訊息樣式 */
+QLabel[toast-message="true"] {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+QLabel[toast-detail="true"] {
+    color: #b0b0b0;
+    font-size: 11px;
+}
+
 /* 按鈕樣式 */
 QPushButton {
     background-color: #555555;

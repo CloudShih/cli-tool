@@ -13,6 +13,8 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QPropertyAnimation, QEasingCurv
 from PyQt5.QtGui import QFont, QIcon, QPainter, QColor, QLinearGradient, QPalette
 from ui.components.buttons import ModernButton, PrimaryButton, IconButton
 from ui.components.indicators import StatusIndicator, LoadingSpinner
+from ui.components.progress_toast import ToastManager, show_progress_toast
+from ui.plugin_loader import PluginLoadingDialog
 from config.config_manager import config_manager
 from core.plugin_manager import plugin_manager
 from ui.theme_manager import theme_manager
@@ -197,10 +199,39 @@ class NavigationSidebar(QFrame):
         self.navigation_buttons[key] = button
         layout.addWidget(button)
     
-    def load_plugin_navigation(self, layout: QVBoxLayout):
+    def load_plugin_navigation(self, main_layout):
         """載入插件導航項目"""
         try:
             plugins = plugin_manager.get_available_plugins()
+            
+            # 找到工具區域的插入位置（在分隔線後）
+            tools_index = -1
+            for i in range(main_layout.count()):
+                item = main_layout.itemAt(i)
+                if item and item.widget():
+                    widget = item.widget()
+                    if isinstance(widget, QLabel) and widget.text() == "工具":
+                        tools_index = i
+                        break
+            
+            if tools_index == -1:
+                return
+            
+            # 移除舊的插件按鈕（如果有的話）
+            plugins_to_remove = []
+            for plugin_name in self.navigation_buttons:
+                if plugin_name not in ["welcome", "themes", "components"]:
+                    plugins_to_remove.append(plugin_name)
+            
+            for plugin_name in plugins_to_remove:
+                if plugin_name in self.navigation_buttons:
+                    button = self.navigation_buttons[plugin_name]
+                    main_layout.removeWidget(button)
+                    button.deleteLater()
+                    del self.navigation_buttons[plugin_name]
+            
+            # 添加新的插件導航項目
+            insert_index = tools_index + 1
             for plugin_name, plugin in plugins.items():
                 icon = "🔧"  # 預設圖標
                 if plugin_name == "fd":
@@ -208,10 +239,23 @@ class NavigationSidebar(QFrame):
                 elif plugin_name == "poppler":
                     icon = "📄"
                 
-                self.add_navigation_item(layout, plugin_name, icon, plugin.name.title())
+                button = ModernButton(f"{icon} {plugin.name.title()}")
+                button.setProperty("sidebar-nav", True)
+                button.setCheckable(True)
+                button.clicked.connect(lambda checked, key=plugin_name: self.on_navigation_clicked(key))
+                
+                self.navigation_buttons[plugin_name] = button
+                main_layout.insertWidget(insert_index, button)
+                insert_index += 1
+                
                 logger.info(f"Added navigation item for plugin: {plugin_name}")
+                
         except Exception as e:
             logger.error(f"Error loading plugin navigation: {e}")
+    
+    def refresh_plugin_navigation(self):
+        """刷新插件導航"""
+        self.load_plugin_navigation(self.layout())
     
     def on_navigation_clicked(self, key: str):
         """處理導航點擊事件"""
@@ -236,7 +280,9 @@ class ModernMainWindow(QMainWindow):
         super().__init__()
         self.plugin_views = {}
         self.current_view = None
+        self.toast_manager = None
         self.setup_ui()
+        self.setup_toast_manager()
         self.load_plugins()
         self.apply_theme()
         self.restore_window_state()
@@ -275,6 +321,10 @@ class ModernMainWindow(QMainWindow):
         # 添加歡迎頁面
         self.welcome_page = WelcomePage()
         self.content_stack.addWidget(self.welcome_page)
+    
+    def setup_toast_manager(self):
+        """設置吐司通知管理器"""
+        self.toast_manager = ToastManager(self)
     
     def create_menu_bar(self):
         """創建選單欄"""
@@ -333,31 +383,50 @@ class ModernMainWindow(QMainWindow):
         self.set_status("準備就緒", "ready")
     
     def load_plugins(self):
-        """載入插件"""
+        """載入插件 - 使用進度對話框"""
         try:
-            self.set_status("載入插件中...", "processing")
+            self.set_status("準備載入插件...", "processing")
             
-            logger.info("Loading plugins...")
-            plugin_manager.initialize()
+            # 創建並顯示插件載入對話框
+            loading_dialog = PluginLoadingDialog(plugin_manager, self)
+            loading_dialog.loading_completed.connect(self.on_plugins_loaded)
             
-            # 獲取所有插件視圖
-            plugin_views = plugin_manager.get_plugin_views()
-            
-            for plugin_name, view in plugin_views.items():
-                self.plugin_views[plugin_name] = view
-                self.content_stack.addWidget(view)
-                logger.info(f"Added plugin view: {plugin_name}")
-            
-            # 添加主題選擇器和組件展示
-            self.add_special_views()
-            
-            self.set_status("插件載入完成", "success")
-            logger.info(f"Successfully loaded {len(plugin_views)} plugins")
+            # 異步啟動載入
+            QTimer.singleShot(100, loading_dialog.start_loading)
             
         except Exception as e:
-            logger.error(f"Error loading plugins: {e}")
+            logger.error(f"Error starting plugin loading: {e}")
             self.set_status(f"插件載入失敗: {str(e)}", "error")
             self.show_plugin_error(str(e))
+    
+    def on_plugins_loaded(self, success: bool, message: str):
+        """處理插件載入完成"""
+        try:
+            if success:
+                # 獲取所有插件視圖並添加到主窗口
+                plugin_views = plugin_manager.get_plugin_views()
+                
+                for plugin_name, view in plugin_views.items():
+                    self.plugin_views[plugin_name] = view
+                    self.content_stack.addWidget(view)
+                    logger.info(f"Added plugin view: {plugin_name}")
+                
+                # 添加主題選擇器和組件展示
+                self.add_special_views()
+                
+                # 更新側邊欄導航
+                self.sidebar.refresh_plugin_navigation()
+                
+                self.set_status(f"插件載入完成 - {message}", "success")
+                logger.info(f"Successfully loaded {len(plugin_views)} plugins")
+            else:
+                self.set_status(f"插件載入失敗 - {message}", "error")
+                # 仍然添加特殊視圖，即使插件載入失敗
+                self.add_special_views()
+                
+        except Exception as e:
+            logger.error(f"Error processing loaded plugins: {e}")
+            self.set_status(f"插件處理失敗: {str(e)}", "error")
     
     def add_special_views(self):
         """添加特殊視圖（主題選擇器、組件展示）"""
@@ -383,6 +452,9 @@ class ModernMainWindow(QMainWindow):
     def on_navigation_changed(self, key: str):
         """處理導航變更"""
         try:
+            # 顯示切換反饋
+            self.show_navigation_toast(key)
+            
             if key == "welcome":
                 self.content_stack.setCurrentWidget(self.welcome_page)
                 self.set_status("歡迎使用 CLI Tool Integration", "ready")
@@ -402,6 +474,26 @@ class ModernMainWindow(QMainWindow):
             logger.error(f"Error changing navigation: {e}")
             self.set_status(f"導航錯誤: {str(e)}", "error")
     
+    def show_navigation_toast(self, key: str):
+        """顯示導航切換吐司通知"""
+        page_names = {
+            "welcome": "歡迎頁面",
+            "fd": "檔案搜尋",
+            "poppler": "PDF 處理",
+            "themes": "主題設定",
+            "components": "UI 組件"
+        }
+        
+        page_name = page_names.get(key, key.title())
+        icon = "🏠" if key == "welcome" else "🔍" if key == "fd" else "📄" if key == "poppler" else "🎨" if key == "themes" else "🧩" if key == "components" else "🔧"
+        
+        if self.toast_manager:
+            self.toast_manager.show_progress_toast(
+                f"{icon} {page_name}", 
+                "頁面切換中...", 
+                duration=1500
+            )
+    
     def apply_theme(self):
         """套用主題"""
         try:
@@ -414,6 +506,14 @@ class ModernMainWindow(QMainWindow):
         """處理主題變更"""
         logger.info(f"Theme changed to: {theme_name}")
         self.set_status(f"主題已切換至: {theme_name}", "success")
+        
+        # 顯示主題切換吐司通知
+        if self.toast_manager:
+            self.toast_manager.show_progress_toast(
+                f"🎨 主題已切換", 
+                f"當前主題: {theme_name}", 
+                duration=2000
+            )
     
     def set_status(self, message: str, status: str = "ready"):
         """設置狀態欄訊息"""
@@ -438,6 +538,14 @@ class ModernMainWindow(QMainWindow):
         try:
             self.set_status("重新整理插件中...", "processing")
             
+            # 顯示重新整理吐司通知
+            if self.toast_manager:
+                self.toast_manager.show_progress_toast(
+                    "🔄 重新整理插件", 
+                    "正在重新載入插件...", 
+                    duration=0  # 手動隱藏
+                )
+            
             # 清理現有插件
             plugin_manager.cleanup()
             
@@ -447,6 +555,14 @@ class ModernMainWindow(QMainWindow):
         except Exception as e:
             logger.error(f"Error refreshing plugins: {e}")
             self.set_status(f"重新整理失敗: {str(e)}", "error")
+            
+            # 顯示錯誤吐司通知
+            if self.toast_manager:
+                self.toast_manager.show_progress_toast(
+                    "❌ 重新整理失敗", 
+                    str(e), 
+                    duration=3000
+                )
     
     def show_about(self):
         """顯示關於對話框"""
