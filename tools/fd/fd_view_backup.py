@@ -1,7 +1,3 @@
-"""
-FD 插件的現代化視圖 - 重新實現版本
-"""
-
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QLabel, QCheckBox, QSizePolicy, QGroupBox
@@ -10,7 +6,6 @@ from PyQt5.QtGui import QFont, QIcon
 from ui.components.buttons import ModernButton, PrimaryButton, DirectoryButton
 from ui.components.inputs import ModernLineEdit, ModernComboBox, ModernTextEdit
 from ui.components.indicators import StatusIndicator, LoadingSpinner
-
 
 class FdView(QWidget):
     def __init__(self):
@@ -33,7 +28,7 @@ class FdView(QWidget):
         header_layout.addStretch()
         
         # 狀態指示器
-        self.status_indicator = StatusIndicator("ready")
+        self.status_indicator = StatusIndicator("ready", "準備搜尋")
         header_layout.addWidget(self.status_indicator)
         
         main_layout.addLayout(header_layout)

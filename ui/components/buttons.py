@@ -184,7 +184,7 @@ class FileButton(IconButton):
     file_selected = pyqtSignal(str)  # 檔案選擇信號
     
     def __init__(self, text="瀏覽...", file_filter="所有檔案 (*)", parent=None):
-        super().__init__(text, parent=parent)
+        super().__init__(text, icon=None, icon_size=16, parent=parent)
         self.file_filter = file_filter
         self.clicked.connect(self.open_file_dialog)
     
@@ -210,7 +210,7 @@ class DirectoryButton(IconButton):
     directory_selected = pyqtSignal(str)  # 目錄選擇信號
     
     def __init__(self, text="瀏覽目錄...", parent=None):
-        super().__init__(text, parent=parent)
+        super().__init__(text, icon=None, icon_size=16, parent=parent)
         self.clicked.connect(self.open_directory_dialog)
     
     def open_directory_dialog(self):
