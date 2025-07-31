@@ -18,7 +18,9 @@
     }
   },
   "ui": {
-    "theme": "dark",
+    "theme": {
+      "name": "dark_professional"
+    },
     "window": {
       "width": 800,
       "height": 600,

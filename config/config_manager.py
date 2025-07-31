@@ -170,6 +170,9 @@ class ConfigManager:
         for k in keys[:-1]:
             if k not in config:
                 config[k] = {}
+            elif not isinstance(config[k], dict):
+                # 如果值不是字典，轉換為字典
+                config[k] = {}
             config = config[k]
         
         # 設置值

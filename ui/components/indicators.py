@@ -79,10 +79,10 @@ class LoadingSpinner(QWidget):
             start_radius = radius * 0.3
             end_radius = radius * 0.8
             
-            start_x = center.x() + start_radius * math.cos(math.radians(angle))
-            start_y = center.y() + start_radius * math.sin(math.radians(angle))
-            end_x = center.x() + end_radius * math.cos(math.radians(angle))
-            end_y = center.y() + end_radius * math.sin(math.radians(angle))
+            start_x = int(center.x() + start_radius * math.cos(math.radians(angle)))
+            start_y = int(center.y() + start_radius * math.sin(math.radians(angle)))
+            end_x = int(center.x() + end_radius * math.cos(math.radians(angle)))
+            end_y = int(center.y() + end_radius * math.sin(math.radians(angle)))
             
             # 設置透明度
             color = QColor(self.color)
