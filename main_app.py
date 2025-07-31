@@ -1,10 +1,13 @@
 import sys
 import logging
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTabWidget, QMessageBox
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTabWidget, QMessageBox, QMenuBar, QMenu, QAction
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer
 from config.config_manager import config_manager
 from core.plugin_manager import plugin_manager
+from ui.theme_manager import theme_manager
+from ui.theme_selector import ThemeSelector
+from ui.component_showcase import ComponentShowcase
 
 # 設置日誌
 logging.basicConfig(
@@ -31,12 +34,26 @@ class CLIToolApp(QWidget):
         
         self.initUI()
         self.load_plugins()
+        self.apply_theme()
 
     def initUI(self):
         main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # 創建選單欄
+        self.create_menu()
+        
+        # 主要標籤頁
         self.tabs = QTabWidget()
         main_layout.addWidget(self.tabs)
+        
         self.setLayout(main_layout)
+    
+    def create_menu(self):
+        """創建應用程式選單"""
+        # 注意：QWidget 不直接支援選單欄，所以我們創建一個假的選單按鈕
+        # 在完整的 QMainWindow 重構中會有真正的選單欄
+        pass
 
     def load_plugins(self):
         """載入和初始化插件"""
@@ -56,10 +73,48 @@ class CLIToolApp(QWidget):
             
             if not plugin_views:
                 self.show_no_plugins_message()
+            else:
+                # 添加主題選擇器標籤頁
+                self.add_theme_selector_tab()
+                
+                # 添加組件展示標籤頁
+                self.add_component_showcase_tab()
                 
         except Exception as e:
             logger.error(f"Error loading plugins: {e}")
             self.show_plugin_error(str(e))
+    
+    def add_theme_selector_tab(self):
+        """添加主題選擇器標籤頁"""
+        try:
+            theme_selector = ThemeSelector()
+            theme_selector.theme_changed.connect(self.on_theme_changed)
+            self.tabs.addTab(theme_selector, "🎨 主題設定")
+            logger.info("Added theme selector tab")
+        except Exception as e:
+            logger.error(f"Error adding theme selector tab: {e}")
+    
+    def add_component_showcase_tab(self):
+        """添加組件展示標籤頁"""
+        try:
+            showcase = ComponentShowcase()
+            self.tabs.addTab(showcase, "🧩 UI 組件")
+            logger.info("Added component showcase tab")
+        except Exception as e:
+            logger.error(f"Error adding component showcase tab: {e}")
+    
+    def apply_theme(self):
+        """套用當前配置的主題"""
+        try:
+            theme_manager.apply_current_theme()
+            logger.info("Applied current theme from configuration")
+        except Exception as e:
+            logger.error(f"Error applying theme: {e}")
+    
+    def on_theme_changed(self, theme_name: str):
+        """處理主題變更事件"""
+        logger.info(f"Theme changed to: {theme_name}")
+        # 主題已經由 theme_manager 處理，這裡可以添加額外的處理邏輯
 
     def show_no_plugins_message(self):
         """顯示無插件可用的訊息"""
@@ -108,62 +163,6 @@ def main():
     """主函數 - 應用程式入口點"""
     app = QApplication(sys.argv)
     
-    # Apply dark theme stylesheet
-    app.setStyleSheet("""
-        QWidget {
-            background-color: #2e2e2e;
-            color: #f0f0f0;
-        }
-        QLineEdit, QTextEdit, QComboBox {
-            background-color: #3c3c3c;
-            color: #f0f0f0;
-            border: 1px solid #555555;
-            padding: 5px;
-        }
-        QPushButton {
-            background-color: #555555;
-            color: #f0f0f0;
-            border: 1px solid #666666;
-            padding: 8px 15px;
-            border-radius: 3px;
-        }
-        QPushButton:hover {
-            background-color: #666666;
-        }
-        QTabWidget::pane {
-            border: 1px solid #444444;
-            background-color: #2e2e2e;
-        }
-        QTabBar::tab {
-            background: #3c3c3c;
-            color: #f0f0f0;
-            border: 1px solid #444444;
-            border-bottom-color: #3c3c3c; /* same as pane color */
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-            padding: 8px;
-            margin-right: 2px;
-        }
-        QTabBar::tab:selected {
-            background: #2e2e2e;
-            border-bottom-color: #2e2e2e;
-        }
-        QCheckBox {
-            spacing: 5px;
-        }
-        QCheckBox::indicator {
-            width: 15px;
-            height: 15px;
-        }
-        QCheckBox::indicator:unchecked {
-            border: 1px solid #888888;
-            background-color: #444444;
-        }
-        QCheckBox::indicator:checked {
-            border: 1px solid #888888;
-            background-color: #007acc; /* A blue checkmark */
-        }
-    """)
     # Set application icon using config manager
     try:
         icon_path = config_manager.get_resource_path("static/favicon/android-chrome-512x512.png")

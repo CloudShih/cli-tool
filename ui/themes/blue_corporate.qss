@@ -1,0 +1,323 @@
+/*
+ * Blue Corporate 主題 - 企業藍色主題，專業穩重
+ * 使用企業級的藍色調，展現專業與信賴感
+ */
+
+/* 全域樣式 */
+QWidget {
+    background-color: #1e3a8a;
+    color: #f1f5f9;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 12px;
+    selection-background-color: #60a5fa;
+    selection-color: #1e3a8a;
+}
+
+/* 主窗口 */
+QMainWindow {
+    background-color: #1e3a8a;
+    border: none;
+}
+
+/* 按鈕樣式 */
+QPushButton {
+    background-color: #3b82f6;
+    color: #ffffff;
+    border: 1px solid #2563eb;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: normal;
+    min-height: 20px;
+}
+
+QPushButton:hover {
+    background-color: #2563eb;
+    border-color: #1d4ed8;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+QPushButton:pressed {
+    background-color: #1d4ed8;
+    border-color: #1e40af;
+}
+
+QPushButton:disabled {
+    background-color: #334155;
+    color: #94a3b8;
+    border-color: #475569;
+}
+
+/* 主要操作按鈕 */
+QPushButton[primary="true"] {
+    background-color: #0ea5e9;
+    border-color: #0284c7;
+}
+
+QPushButton[primary="true"]:hover {
+    background-color: #0284c7;
+    border-color: #0369a1;
+}
+
+QPushButton[primary="true"]:pressed {
+    background-color: #0369a1;
+}
+
+/* 危險操作按鈕 */
+QPushButton[danger="true"] {
+    background-color: #ef4444;
+    border-color: #dc2626;
+}
+
+QPushButton[danger="true"]:hover {
+    background-color: #dc2626;
+    border-color: #b91c1c;
+}
+
+/* 輸入框樣式 */
+QLineEdit, QTextEdit, QPlainTextEdit {
+    background-color: #1e40af;
+    color: #f1f5f9;
+    border: 1px solid #3b82f6;
+    padding: 8px;
+    border-radius: 4px;
+    selection-background-color: #60a5fa;
+}
+
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {
+    border-color: #60a5fa;
+    background-color: #1e40af;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
+}
+
+QLineEdit:disabled, QTextEdit:disabled, QPlainTextEdit:disabled {
+    background-color: #334155;
+    color: #94a3b8;
+    border-color: #475569;
+}
+
+/* 下拉選單 */
+QComboBox {
+    background-color: #1e40af;
+    color: #f1f5f9;
+    border: 1px solid #3b82f6;
+    padding: 6px 8px;
+    border-radius: 4px;
+    min-width: 120px;
+}
+
+QComboBox:hover {
+    border-color: #60a5fa;
+}
+
+QComboBox:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #f1f5f9;
+    margin-right: 5px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #1e40af;
+    color: #f1f5f9;
+    border: 1px solid #3b82f6;
+    selection-background-color: #60a5fa;
+    selection-color: #1e3a8a;
+    outline: none;
+}
+
+/* 標籤頁 */
+QTabWidget::pane {
+    border: 1px solid #3b82f6;
+    background-color: #1e3a8a;
+    border-radius: 4px;
+}
+
+QTabBar::tab {
+    background: #1e40af;
+    color: #f1f5f9;
+    border: 1px solid #3b82f6;
+    border-bottom-color: #1e40af;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    padding: 8px 16px;
+    margin-right: 2px;
+    min-width: 80px;
+}
+
+QTabBar::tab:selected {
+    background: #1e3a8a;
+    border-bottom-color: #1e3a8a;
+    border-top: 2px solid #60a5fa;
+}
+
+QTabBar::tab:hover:!selected {
+    background: #3730a3;
+}
+
+/* 核取方塊 */
+QCheckBox {
+    spacing: 8px;
+    color: #f1f5f9;
+}
+
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+}
+
+QCheckBox::indicator:unchecked {
+    border: 1px solid #64748b;
+    background-color: #334155;
+    border-radius: 2px;
+}
+
+QCheckBox::indicator:unchecked:hover {
+    border-color: #94a3b8;
+    background-color: #475569;
+}
+
+QCheckBox::indicator:checked {
+    border: 1px solid #60a5fa;
+    background-color: #60a5fa;
+    border-radius: 2px;
+}
+
+QCheckBox::indicator:checked:hover {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+/* 標籤 */
+QLabel {
+    color: #f1f5f9;
+    background: transparent;
+}
+
+QLabel[heading="true"] {
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* 群組框 */
+QGroupBox {
+    border: 1px solid #3b82f6;
+    border-radius: 4px;
+    margin-top: 10px;
+    padding-top: 10px;
+    color: #f1f5f9;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 8px;
+    padding: 0 8px 0 8px;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* 列表項目 */
+QListWidget {
+    background-color: #1e40af;
+    color: #f1f5f9;
+    border: 1px solid #3b82f6;
+    border-radius: 4px;
+    outline: none;
+}
+
+QListWidget::item {
+    padding: 4px 8px;
+    border-bottom: 1px solid #3730a3;
+}
+
+QListWidget::item:selected {
+    background-color: #60a5fa;
+    color: #1e3a8a;
+}
+
+QListWidget::item:hover:!selected {
+    background-color: #3730a3;
+}
+
+/* 滾動條 */
+QScrollBar:vertical {
+    background-color: #334155;
+    width: 12px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #64748b;
+    border-radius: 6px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #94a3b8;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
+}
+
+QScrollBar:horizontal {
+    background-color: #334155;
+    height: 12px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #64748b;
+    border-radius: 6px;
+    min-width: 20px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #94a3b8;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    border: none;
+    background: none;
+}
+
+/* 狀態欄 */
+QStatusBar {
+    background-color: #1e40af;
+    color: #f1f5f9;
+    border-top: 1px solid #3b82f6;
+}
+
+/* 工具提示 */
+QToolTip {
+    background-color: #334155;
+    color: #f1f5f9;
+    border: 1px solid #64748b;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* 分隔線 */
+QFrame[frameShape="4"] { /* HLine */
+    border: none;
+    background-color: #3b82f6;
+    max-height: 1px;
+}
+
+QFrame[frameShape="5"] { /* VLine */
+    border: none;
+    background-color: #3b82f6;
+    max-width: 1px;
+}

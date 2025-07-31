@@ -18,7 +18,11 @@
     }
   },
   "ui": {
-    "theme": "dark",
+    "theme": {
+      "name": "dark_professional",
+      "auto_switch": false,
+      "follow_system": false
+    },
     "window": {
       "width": 800,
       "height": 600,
@@ -26,7 +30,11 @@
       "y": 100
     },
     "remember_window_state": true,
-    "show_tooltips": true
+    "show_tooltips": true,
+    "animations": {
+      "enabled": true,
+      "duration": 200
+    }
   },
   "general": {
     "auto_save_settings": true,

@@ -1,0 +1,352 @@
+/*
+ * High Contrast 主題 - 高對比度主題，提升可訪問性
+ * 使用極端對比色彩，適合視覺障礙使用者
+ */
+
+/* 全域樣式 */
+QWidget {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    selection-background-color: #ffff00;
+    selection-color: #000000;
+}
+
+/* 主窗口 */
+QMainWindow {
+    background-color: #000000;
+    border: 2px solid #ffffff;
+}
+
+/* 按鈕樣式 */
+QPushButton {
+    background-color: #ffffff;
+    color: #000000;
+    border: 3px solid #ffffff;
+    padding: 12px 20px;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 14px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background-color: #ffff00;
+    color: #000000;
+    border-color: #ffff00;
+}
+
+QPushButton:pressed {
+    background-color: #00ff00;
+    color: #000000;
+    border-color: #00ff00;
+}
+
+QPushButton:disabled {
+    background-color: #808080;
+    color: #000000;
+    border-color: #808080;
+}
+
+/* 主要操作按鈕 */
+QPushButton[primary="true"] {
+    background-color: #00ff00;
+    color: #000000;
+    border-color: #00ff00;
+}
+
+QPushButton[primary="true"]:hover {
+    background-color: #80ff80;
+    border-color: #80ff80;
+}
+
+QPushButton[primary="true"]:pressed {
+    background-color: #40ff40;
+}
+
+/* 危險操作按鈕 */
+QPushButton[danger="true"] {
+    background-color: #ff0000;
+    color: #ffffff;
+    border-color: #ff0000;
+}
+
+QPushButton[danger="true"]:hover {
+    background-color: #ff8080;
+    border-color: #ff8080;
+}
+
+/* 輸入框樣式 */
+QLineEdit, QTextEdit, QPlainTextEdit {
+    background-color: #ffffff;
+    color: #000000;
+    border: 3px solid #ffffff;
+    padding: 10px;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 14px;
+    selection-background-color: #ffff00;
+}
+
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {
+    border-color: #00ff00;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px #00ff00;
+}
+
+QLineEdit:disabled, QTextEdit:disabled, QPlainTextEdit:disabled {
+    background-color: #808080;
+    color: #000000;
+    border-color: #808080;
+}
+
+/* 下拉選單 */
+QComboBox {
+    background-color: #ffffff;
+    color: #000000;
+    border: 3px solid #ffffff;
+    padding: 8px 10px;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 14px;
+    min-width: 140px;
+}
+
+QComboBox:hover {
+    border-color: #ffff00;
+    background-color: #ffff00;
+}
+
+QComboBox:focus {
+    border-color: #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 30px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #000000;
+    margin-right: 8px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #ffffff;
+    color: #000000;
+    border: 3px solid #000000;
+    selection-background-color: #ffff00;
+    selection-color: #000000;
+    outline: none;
+    font-weight: bold;
+}
+
+/* 標籤頁 */
+QTabWidget::pane {
+    border: 3px solid #ffffff;
+    background-color: #000000;
+    border-radius: 2px;
+}
+
+QTabBar::tab {
+    background: #333333;
+    color: #ffffff;
+    border: 3px solid #ffffff;
+    border-bottom-color: #333333;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    padding: 12px 20px;
+    margin-right: 2px;
+    font-weight: bold;
+    font-size: 14px;
+    min-width: 100px;
+}
+
+QTabBar::tab:selected {
+    background: #000000;
+    border-bottom-color: #000000;
+    border-top: 4px solid #00ff00;
+}
+
+QTabBar::tab:hover:!selected {
+    background: #ffff00;
+    color: #000000;
+}
+
+/* 核取方塊 */
+QCheckBox {
+    spacing: 10px;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+QCheckBox::indicator {
+    width: 20px;
+    height: 20px;
+}
+
+QCheckBox::indicator:unchecked {
+    border: 3px solid #ffffff;
+    background-color: #000000;
+    border-radius: 2px;
+}
+
+QCheckBox::indicator:unchecked:hover {
+    border-color: #ffff00;
+    background-color: #ffff00;
+}
+
+QCheckBox::indicator:checked {
+    border: 3px solid #00ff00;
+    background-color: #00ff00;
+    border-radius: 2px;
+}
+
+QCheckBox::indicator:checked:hover {
+    background-color: #80ff80;
+    border-color: #80ff80;
+}
+
+/* 標籤 */
+QLabel {
+    color: #ffffff;
+    background: transparent;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+QLabel[heading="true"] {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffff00;
+}
+
+/* 群組框 */
+QGroupBox {
+    border: 3px solid #ffffff;
+    border-radius: 2px;
+    margin-top: 12px;
+    padding-top: 12px;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 10px 0 10px;
+    color: #ffff00;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* 列表項目 */
+QListWidget {
+    background-color: #ffffff;
+    color: #000000;
+    border: 3px solid #ffffff;
+    border-radius: 2px;
+    outline: none;
+    font-weight: bold;
+}
+
+QListWidget::item {
+    padding: 8px 12px;
+    border-bottom: 2px solid #000000;
+}
+
+QListWidget::item:selected {
+    background-color: #ffff00;
+    color: #000000;
+}
+
+QListWidget::item:hover:!selected {
+    background-color: #cccccc;
+    color: #000000;
+}
+
+/* 滾動條 */
+QScrollBar:vertical {
+    background-color: #333333;
+    width: 20px;
+    border: 2px solid #ffffff;
+    border-radius: 2px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #ffffff;
+    border: 2px solid #000000;
+    border-radius: 2px;
+    min-height: 30px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #ffff00;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
+}
+
+QScrollBar:horizontal {
+    background-color: #333333;
+    height: 20px;
+    border: 2px solid #ffffff;
+    border-radius: 2px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #ffffff;
+    border: 2px solid #000000;
+    border-radius: 2px;
+    min-width: 30px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #ffff00;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    border: none;
+    background: none;
+}
+
+/* 狀態欄 */
+QStatusBar {
+    background-color: #333333;
+    color: #ffffff;
+    border-top: 3px solid #ffffff;
+    font-weight: bold;
+}
+
+/* 工具提示 */
+QToolTip {
+    background-color: #ffff00;
+    color: #000000;
+    border: 3px solid #000000;
+    padding: 8px 12px;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* 分隔線 */
+QFrame[frameShape="4"] { /* HLine */
+    border: none;
+    background-color: #ffffff;
+    max-height: 3px;
+}
+
+QFrame[frameShape="5"] { /* VLine */
+    border: none;
+    background-color: #ffffff;
+    max-width: 3px;
+}
