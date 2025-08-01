@@ -2,6 +2,7 @@
 FD 插件的現代化視圖 - 重新實現版本
 """
 
+import logging
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QLabel, QCheckBox, QSizePolicy, QGroupBox
@@ -10,12 +11,16 @@ from PyQt5.QtGui import QFont, QIcon
 from ui.components.buttons import ModernButton, PrimaryButton, DirectoryButton
 from ui.components.inputs import ModernLineEdit, ModernComboBox, ModernTextEdit
 from ui.components.indicators import StatusIndicator, LoadingSpinner
+from config.config_manager import config_manager
+
+logger = logging.getLogger(__name__)
 
 
 class FdView(QWidget):
     def __init__(self):
         super().__init__()
         self.setup_ui()
+        self.load_default_settings()
 
     def setup_ui(self):
         """設置現代化 UI"""
@@ -138,6 +143,33 @@ class FdView(QWidget):
         main_layout.addWidget(results_group, 1)  # 結果區域可擴展
         
         self.setLayout(main_layout)
+
+    def load_default_settings(self):
+        """載入預設設定"""
+        try:
+            # 載入預設搜尋類型
+            default_search_type = config_manager.get('tools.fd.default_search_type', 'both')
+            search_types = ['both', 'file', 'directory']
+            if default_search_type in search_types:
+                self.fd_type_combobox.setCurrentIndex(search_types.index(default_search_type))
+            
+            # 載入預設隱藏檔案設定
+            default_hidden = config_manager.get('tools.fd.default_hidden', False)
+            self.fd_hidden_checkbox.setChecked(default_hidden)
+            
+            # 載入預設大小寫敏感設定
+            default_case_sensitive = config_manager.get('tools.fd.default_case_sensitive', False)
+            self.fd_case_sensitive_checkbox.setChecked(default_case_sensitive)
+            
+            logger.info(f"Loaded default fd settings: search_type={default_search_type}, "
+                       f"hidden={default_hidden}, case_sensitive={default_case_sensitive}")
+            
+        except Exception as e:
+            logger.error(f"Error loading default fd settings: {e}")
+            # 使用硬編碼預設值作為回退
+            self.fd_type_combobox.setCurrentIndex(0)  # both
+            self.fd_hidden_checkbox.setChecked(False)
+            self.fd_case_sensitive_checkbox.setChecked(False)
 
     def set_search_button_state(self, text, enabled, background_color=None, text_color=None):
         """設置搜尋按鈕狀態 - 更新為使用現代化組件"""
