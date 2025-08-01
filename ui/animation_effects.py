@@ -267,8 +267,15 @@ class RippleEffect(QWidget):
         self.ripples = []
         self.animation_timer = QTimer(self)  # 設置父對象確保在正確線程中
         self.animation_timer.timeout.connect(self.update_ripples)
-        # 延遲啟動計時器，確保在主線程中啟動
-        QTimer.singleShot(0, lambda: self.animation_timer.start(16))
+        # 延遲啟動計時器，確保在主線程中啟動，但首先檢查是否在主線程中
+        def start_timer_safely():
+            try:
+                if self.animation_timer and not self.animation_timer.isActive():
+                    self.animation_timer.start(16)
+            except Exception as e:
+                logger.warning(f"Failed to start ripple timer: {e}")
+        
+        QTimer.singleShot(0, start_timer_safely)
     
     def add_ripple(self, center: QPoint, max_radius: int = 100):
         """添加漣漪"""
@@ -327,8 +334,15 @@ class ParticleSystem(QWidget):
         self.particles = []
         self.animation_timer = QTimer(self)  # 設置父對象確保在正確線程中
         self.animation_timer.timeout.connect(self.update_particles)
-        # 延遲啟動計時器，確保在主線程中啟動
-        QTimer.singleShot(0, lambda: self.animation_timer.start(16))
+        # 延遲啟動計時器，確保在主線程中啟動，但首先檢查是否在主線程中
+        def start_timer_safely():
+            try:
+                if self.animation_timer and not self.animation_timer.isActive():
+                    self.animation_timer.start(16)
+            except Exception as e:
+                logger.warning(f"Failed to start particle timer: {e}")
+        
+        QTimer.singleShot(0, start_timer_safely)
     
     def emit_particles(self, position: QPoint, count: int = 10, 
                       color: QColor = QColor(70, 130, 180)):

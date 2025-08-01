@@ -65,7 +65,7 @@ class ResponsiveWidget(QWidget):
         super().__init__(parent)
         self.current_breakpoint = 'lg'
         self.breakpoint_configs = {}
-        self.resize_timer = QTimer()
+        self.resize_timer = QTimer(self)  # 設置父對象確保在正確線程中
         self.resize_timer.setSingleShot(True)
         self.resize_timer.timeout.connect(self._handle_resize)
         self.setup_responsive()

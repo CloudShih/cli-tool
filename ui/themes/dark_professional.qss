@@ -758,7 +758,6 @@ QLineEdit[modern_input="true"] {
 QLineEdit[modern_input="true"]:focus {
     border-color: #007acc;
     background-color: #404040;
-    box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
 }
 
 QLineEdit[validation_state="invalid"] {
@@ -807,7 +806,6 @@ QComboBox[modern_combo="true"]:hover {
 
 QComboBox[modern_combo="true"]:focus {
     border-color: #007acc;
-    box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
 }
 
 /* 輸入標籤 */

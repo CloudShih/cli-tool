@@ -364,7 +364,7 @@ class ComponentShowcase(QWidget):
         from PyQt5.QtCore import QTimer
         
         self.progress_indicator.reset()
-        self.progress_timer = QTimer()
+        self.progress_timer = QTimer(self)  # 設置父對象確保在正確線程中
         self.progress_value = 0
         
         def update_progress():

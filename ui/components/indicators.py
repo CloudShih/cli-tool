@@ -33,7 +33,7 @@ class LoadingSpinner(QWidget):
     
     def setup_animation(self):
         """設置動畫"""
-        self.timer = QTimer()
+        self.timer = QTimer(self)  # 設置父對象確保在正確線程中
         self.timer.timeout.connect(self.rotate)
         self.timer.setInterval(50)  # 50ms 間隔
     
