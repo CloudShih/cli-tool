@@ -29,11 +29,23 @@ class PopplerModel:
                 command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                text=True,
-                encoding='utf-8',
+                text=False,  # 使用 bytes 模式避免編碼問題
                 shell=False
             )
-            stdout, stderr = process.communicate()
+            stdout_bytes, stderr_bytes = process.communicate()
+            
+            # 嘗試多種編碼方式解碼
+            def safe_decode(byte_data):
+                for encoding in ['utf-8', 'cp1252', 'latin1', 'gbk', 'big5']:
+                    try:
+                        return byte_data.decode(encoding)
+                    except UnicodeDecodeError:
+                        continue
+                # 如果所有編碼都失敗，使用 errors='replace' 強制解碼
+                return byte_data.decode('utf-8', errors='replace')
+            
+            stdout = safe_decode(stdout_bytes)
+            stderr = safe_decode(stderr_bytes)
 
             # Filter out known pdfminer.six warnings
             filtered_stderr_lines = []
