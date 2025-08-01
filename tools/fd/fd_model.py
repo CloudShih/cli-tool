@@ -30,8 +30,13 @@ class FdModel:
 
         if hidden:
             command.append("--hidden")
+        
+        # 處理大小寫敏感設定
         if case_sensitive:
             command.append("--case-sensitive")
+        else:
+            # 明確指定大小寫不敏感，覆蓋 fd 的 smart case 預設行為
+            command.append("--ignore-case")
 
         try:
             process = subprocess.Popen(
