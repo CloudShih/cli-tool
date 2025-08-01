@@ -179,12 +179,12 @@ class ResponsiveMainWindow(ResponsiveWidget):
     def setup_animations(self):
         """設置動畫"""
         # 側邊欄切換動畫
-        self.sidebar_animation = QPropertyAnimation()
+        self.sidebar_animation = QPropertyAnimation(self.parent if self.parent else None)
         self.sidebar_animation.setDuration(300)
         self.sidebar_animation.setEasingCurve(QEasingCurve.OutCubic)
         
         # 內容區域動畫
-        self.content_animation = QPropertyAnimation()
+        self.content_animation = QPropertyAnimation(self.parent if self.parent else None)
         self.content_animation.setDuration(300)
         self.content_animation.setEasingCurve(QEasingCurve.OutCubic)
         
