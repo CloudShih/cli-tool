@@ -178,20 +178,36 @@ class ResponsiveMainWindow(ResponsiveWidget):
     
     def setup_animations(self):
         """設置動畫"""
-        # 側邊欄切換動畫
-        self.sidebar_animation = QPropertyAnimation(self.parent if self.parent else None)
-        self.sidebar_animation.setDuration(300)
-        self.sidebar_animation.setEasingCurve(QEasingCurve.OutCubic)
-        
-        # 內容區域動畫
-        self.content_animation = QPropertyAnimation(self.parent if self.parent else None)
-        self.content_animation.setDuration(300)
-        self.content_animation.setEasingCurve(QEasingCurve.OutCubic)
-        
-        # 並行動畫組
-        self.layout_animation_group = QParallelAnimationGroup()
-        self.layout_animation_group.addAnimation(self.sidebar_animation)
-        self.layout_animation_group.addAnimation(self.content_animation)
+        try:
+            # 側邊欄切換動畫 - 需要指定目標對象和屬性
+            if hasattr(self.main_window, 'sidebar'):
+                self.sidebar_animation = QPropertyAnimation(self.main_window.sidebar, b"geometry")
+                self.sidebar_animation.setDuration(300)
+                self.sidebar_animation.setEasingCurve(QEasingCurve.OutCubic)
+            else:
+                self.sidebar_animation = None
+            
+            # 內容區域動畫
+            if hasattr(self.main_window, 'content_stack'):
+                self.content_animation = QPropertyAnimation(self.main_window.content_stack, b"geometry")
+                self.content_animation.setDuration(300)
+                self.content_animation.setEasingCurve(QEasingCurve.OutCubic)
+            else:
+                self.content_animation = None
+            
+            # 並行動畫組
+            self.layout_animation_group = QParallelAnimationGroup()
+            if self.sidebar_animation:
+                self.layout_animation_group.addAnimation(self.sidebar_animation)
+            if self.content_animation:
+                self.layout_animation_group.addAnimation(self.content_animation)
+                
+        except Exception as e:
+            logger.error(f"Error setting up responsive components: {e}")
+            # 設置空的動畫組避免後續錯誤
+            self.layout_animation_group = QParallelAnimationGroup()
+            self.sidebar_animation = None
+            self.content_animation = None
     
     def apply_config(self, config: Dict):
         """應用響應式配置"""

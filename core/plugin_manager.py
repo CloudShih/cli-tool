@@ -154,7 +154,7 @@ class PluginManager:
         logger.info(f"Registered plugin: {plugin.name} v{plugin.version}")
     
     def load_plugins(self):
-        """載入和初始化所有插件"""
+        """載入和初始化所有插件（不創建 UI 視圖）"""
         logger.info("Loading plugins...")
         
         failed_plugins = []
@@ -162,19 +162,9 @@ class PluginManager:
             try:
                 if plugin.is_available():
                     if plugin.initialize():
-                        self.plugin_instances[name] = {
-                            'plugin': plugin,
-                            'model': plugin.create_model(),
-                            'view': plugin.create_view(),
-                        }
-                        # 創建控制器
-                        controller = plugin.create_controller(
-                            self.plugin_instances[name]['model'],
-                            self.plugin_instances[name]['view']
-                        )
-                        self.plugin_instances[name]['controller'] = controller
-                        
-                        logger.info(f"Successfully loaded plugin: {name}")
+                        # 只創建插件實例記錄，不創建 UI 組件
+                        # UI 組件將在主線程中創建
+                        logger.info(f"Successfully initialized plugin: {name}")
                     else:
                         failed_plugins.append(name)
                         logger.error(f"Failed to initialize plugin: {name}")

@@ -153,11 +153,12 @@ class PluginLoadingWorker(QThread):
         try:
             logger.info("Plugin loading worker started")
             
-            # 初始化插件管理器
-            self.plugin_manager.initialize()
+            # 在工作線程中，只做插件發現和驗證，不創建 UI
+            # 初始化插件管理器（僅發現和註冊插件，不創建視圖）
+            self.plugin_manager.discover_plugins()
             
-            # 獲取所有可用插件
-            available_plugins = self.plugin_manager.get_available_plugins()
+            # 獲取所有已註冊的插件
+            available_plugins = self.plugin_manager.get_all_plugins()
             
             if not available_plugins:
                 self.all_plugins_loaded.emit(False, "沒有找到可用的插件")
@@ -172,11 +173,11 @@ class PluginLoadingWorker(QThread):
                 self.plugin_loading_started.emit(plugin_name)
                 
                 try:
-                    # 模擬載入過程的不同階段
+                    # 在工作線程中進行的階段（不涉及 UI 創建）
                     stages = [
                         (20, "檢查依賴..."),
-                        (40, "初始化中..."),
-                        (60, "創建視圖..."),
+                        (40, "驗證工具可用性..."),
+                        (60, "初始化插件..."),
                         (80, "註冊插件..."),
                         (100, "完成")
                     ]
@@ -186,24 +187,40 @@ class PluginLoadingWorker(QThread):
                             break
                             
                         self.plugin_loading_progress.emit(plugin_name, progress, message)
+                        
+                        # 在特定階段執行實際的檢查
+                        if progress == 20:
+                            # 檢查工具依賴
+                            if not plugin.check_tools_availability():
+                                self.plugin_loading_completed.emit(plugin_name, False, "所需工具不可用")
+                                break
+                        elif progress == 60:
+                            # 初始化插件（不創建 UI）
+                            if not plugin.initialize():
+                                self.plugin_loading_completed.emit(plugin_name, False, "初始化失敗")
+                                break
+                        
                         self.msleep(200)  # 模擬處理時間
                     
                     if not self.should_stop:
-                        # 檢查插件是否成功載入
-                        if plugin_name in self.plugin_manager.get_plugin_views():
-                            self.plugin_loading_completed.emit(plugin_name, True, "載入成功")
+                        # 檢查插件是否可用
+                        if plugin.is_available():
+                            self.plugin_loading_completed.emit(plugin_name, True, "驗證成功")
                         else:
-                            self.plugin_loading_completed.emit(plugin_name, False, "載入失敗")
+                            self.plugin_loading_completed.emit(plugin_name, False, "插件不可用")
                 
                 except Exception as e:
                     logger.error(f"Error loading plugin {plugin_name}: {e}")
                     self.plugin_loading_completed.emit(plugin_name, False, f"錯誤: {str(e)}")
             
             if not self.should_stop:
-                loaded_count = len(self.plugin_manager.get_plugin_views())
+                # 統計成功驗證的插件數量
+                verified_plugins = [name for name, plugin in available_plugins.items() 
+                                  if plugin.is_available()]
+                verified_count = len(verified_plugins)
                 self.all_plugins_loaded.emit(
-                    loaded_count > 0, 
-                    f"成功載入 {loaded_count}/{total_plugins} 個插件"
+                    verified_count > 0, 
+                    f"成功驗證 {verified_count}/{total_plugins} 個插件"
                 )
             
         except Exception as e:

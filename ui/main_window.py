@@ -464,13 +464,8 @@ class ModernMainWindow(QMainWindow):
         """處理插件載入完成"""
         try:
             if success:
-                # 獲取所有插件視圖並添加到主窗口
-                plugin_views = plugin_manager.get_plugin_views()
-                
-                for plugin_name, view in plugin_views.items():
-                    self.plugin_views[plugin_name] = view
-                    self.content_stack.addWidget(view)
-                    logger.info(f"Added plugin view: {plugin_name}")
+                # 在主線程中創建插件視圖
+                self.create_plugin_views_in_main_thread()
                 
                 # 添加主題選擇器和組件展示
                 self.add_special_views()
@@ -478,8 +473,9 @@ class ModernMainWindow(QMainWindow):
                 # 更新側邊欄導航
                 self.sidebar.refresh_plugin_navigation()
                 
+                plugin_count = len(self.plugin_views)
                 self.set_status(f"插件載入完成 - {message}", "success")
-                logger.info(f"Successfully loaded {len(plugin_views)} plugins")
+                logger.info(f"Successfully loaded {plugin_count} plugins")
             else:
                 self.set_status(f"插件載入失敗 - {message}", "error")
                 # 仍然添加特殊視圖，即使插件載入失敗
@@ -488,6 +484,39 @@ class ModernMainWindow(QMainWindow):
         except Exception as e:
             logger.error(f"Error processing loaded plugins: {e}")
             self.set_status(f"插件處理失敗: {str(e)}", "error")
+    
+    def create_plugin_views_in_main_thread(self):
+        """在主線程中創建插件視圖"""
+        try:
+            # 獲取所有已註冊且可用的插件
+            available_plugins = plugin_manager.get_available_plugins()
+            
+            for plugin_name, plugin in available_plugins.items():
+                try:
+                    # 在主線程中創建 MVC 組件
+                    model = plugin.create_model()
+                    view = plugin.create_view()
+                    controller = plugin.create_controller(model, view)
+                    
+                    # 保存到插件管理器實例
+                    plugin_manager.plugin_instances[plugin_name] = {
+                        'plugin': plugin,
+                        'model': model,
+                        'view': view,
+                        'controller': controller
+                    }
+                    
+                    # 添加到主窗口
+                    self.plugin_views[plugin_name] = view
+                    self.content_stack.addWidget(view)
+                    
+                    logger.info(f"Created plugin view in main thread: {plugin_name}")
+                    
+                except Exception as e:
+                    logger.error(f"Error creating view for plugin {plugin_name}: {e}")
+                    
+        except Exception as e:
+            logger.error(f"Error creating plugin views in main thread: {e}")
     
     def add_special_views(self):
         """添加特殊視圖（主題選擇器、組件展示）"""
