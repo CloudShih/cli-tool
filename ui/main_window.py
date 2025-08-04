@@ -350,11 +350,11 @@ class ModernMainWindow(QMainWindow):
                 available_width = screen_info.get('available_width', 1200)
                 available_height = screen_info.get('available_height', 800)
                 
-                # 設置合適的初始大小（螢幕的80%）
-                initial_width = min(1200, int(available_width * 0.8))
-                initial_height = min(800, int(available_height * 0.8))
+                # 設置合適的初始大小（螢幕的80%，但增加預設最小值以適應 pandoc UI）
+                initial_width = min(1600, int(available_width * 0.8))
+                initial_height = min(1200, int(available_height * 0.8))
                 
-                self.setMinimumSize(800, 600)  # 設置最小尺寸
+                self.setMinimumSize(1200, 900)  # 設置更大的最小尺寸以適應 pandoc UI
                 self.resize(initial_width, initial_height)
             
         except Exception as e:

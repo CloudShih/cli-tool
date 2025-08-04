@@ -53,6 +53,10 @@ class PandocPlugin(PluginInterface):
             logger.error(f"Failed to initialize pandoc plugin: {e}")
             return False
     
+    def check_tools_availability(self) -> bool:
+        """檢查所需工具是否可用 - PluginInterface 要求的方法"""
+        return self._check_pandoc_availability()
+    
     def _check_pandoc_availability(self) -> bool:
         """檢查 pandoc 工具是否可用"""
         try:
