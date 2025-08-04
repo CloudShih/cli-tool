@@ -62,6 +62,8 @@ class PandocModel:
                 ['xelatex', '--version'],
                 capture_output=True,
                 text=True,
+                encoding='utf-8',
+                errors='replace',
                 timeout=10
             )
             if result.returncode == 0:
@@ -78,6 +80,8 @@ class PandocModel:
                 [self.pandoc_executable, '--version'],
                 capture_output=True,
                 text=True,
+                encoding='utf-8',
+                errors='replace',
                 timeout=10
             )
             if result.returncode == 0:
@@ -222,7 +226,9 @@ class PandocModel:
                 command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                text=True
+                text=True,
+                encoding='utf-8',
+                errors='replace'  # 用替換字符處理無法解碼的字節
             )
             
             stdout, stderr = process.communicate()
