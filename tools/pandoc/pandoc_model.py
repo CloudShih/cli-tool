@@ -118,6 +118,21 @@ class PandocModel:
                 logger.error(error_msg)
                 return False, "", error_msg
             
+            # 預檢查 PDF 格式
+            file_ext = os.path.splitext(input_file)[1].lower()
+            if file_ext == '.pdf':
+                error_msg = (
+                    "❌ PDF 格式不支援\n\n"
+                    "Pandoc 無法直接從 PDF 格式轉換文檔。\n\n"
+                    "💡 建議替代方案:\n"
+                    "• 使用本工具的 'Poppler' 功能將 PDF 轉為文字\n"
+                    "• 使用 Adobe Acrobat 等工具將 PDF 轉為 Word 格式\n"
+                    "• 使用在線 PDF 轉換服務\n"
+                    "• 使用其他專門的 PDF 文字提取工具"
+                )
+                logger.warning(f"Attempted to convert PDF file: {input_file}")
+                return False, "", error_msg
+            
             # 建構 pandoc 命令
             command = [self.pandoc_executable]
             
@@ -179,7 +194,21 @@ class PandocModel:
                 
                 return True, success_msg, stderr
             else:
-                error_msg = f"Pandoc 轉換失敗 (退出碼: {process.returncode})\n{stderr}"
+                # 特殊處理 PDF 格式錯誤
+                if "Unknown input format pdf" in stderr or "not from PDF" in stderr:
+                    error_msg = (
+                        "❌ PDF 格式不支援\n\n"
+                        "Pandoc 無法直接從 PDF 格式轉換文檔。\n\n"
+                        "💡 建議替代方案:\n"
+                        "• 使用本工具的 'Poppler' 功能將 PDF 轉為文字\n"
+                        "• 使用 Adobe Acrobat 等工具將 PDF 轉為 Word 格式\n"
+                        "• 使用在線 PDF 轉換服務\n"
+                        "• 使用其他專門的 PDF 文字提取工具\n\n"
+                        f"技術詳情: {stderr}"
+                    )
+                else:
+                    error_msg = f"Pandoc 轉換失敗 (退出碼: {process.returncode})\n{stderr}"
+                
                 logger.error(error_msg)
                 return False, stdout, error_msg
                 

@@ -341,18 +341,61 @@ class PandocView(QWidget):
             self,
             "選擇要轉換的檔案",
             "",
-            "所有支援的檔案 (*.md *.html *.docx *.odt *.rtf *.tex *.epub *.rst *.txt);;所有檔案 (*.*)"
+            "Markdown (*.md *.markdown);;HTML (*.html *.htm);;Word 文檔 (*.docx);;OpenDocument (*.odt);;Rich Text (*.rtf);;LaTeX (*.tex *.latex);;EPUB (*.epub);;reStructuredText (*.rst);;純文字 (*.txt);;所有支援的檔案 (*.md *.html *.docx *.odt *.rtf *.tex *.epub *.rst *.txt);;所有檔案 (*.*)"
         )
         
         if files:
-            self.input_files = files
-            if len(files) == 1:
-                filename = os.path.basename(files[0])
-                self.input_files_label.setText(f"已選擇: {filename}")
-            else:
-                self.input_files_label.setText(f"已選擇 {len(files)} 個檔案")
+            # 檢查是否有不支援的格式
+            unsupported_files = []
+            supported_files = []
             
-            self.input_files_label.setStyleSheet("color: #333;")
+            for file in files:
+                ext = os.path.splitext(file)[1].lower()
+                if ext == '.pdf':
+                    unsupported_files.append(file)
+                else:
+                    supported_files.append(file)
+            
+            # 如果有不支援的 PDF 檔案，顯示警告
+            if unsupported_files:
+                from PyQt5.QtWidgets import QMessageBox
+                msg = QMessageBox(self)
+                msg.setIcon(QMessageBox.Warning)
+                msg.setWindowTitle("格式不支援")
+                msg.setText("⚠️ 發現不支援的檔案格式")
+                
+                pdf_files = [os.path.basename(f) for f in unsupported_files if f.endswith('.pdf')]
+                if pdf_files:
+                    detailed_msg = f"以下 PDF 檔案無法使用 Pandoc 轉換:\n\n"
+                    detailed_msg += "\n".join(f"• {f}" for f in pdf_files[:5])  # 只顯示前5個
+                    if len(pdf_files) > 5:
+                        detailed_msg += f"\n... 以及其他 {len(pdf_files) - 5} 個檔案"
+                    
+                    detailed_msg += "\n\n💡 建議替代方案:\n"
+                    detailed_msg += "• 使用本工具的 Poppler 功能轉換 PDF 為文字\n"
+                    detailed_msg += "• 使用其他 PDF 文字提取工具\n"
+                    detailed_msg += "• 先將 PDF 轉為 Word 格式再使用 Pandoc"
+                    
+                    msg.setDetailedText(detailed_msg)
+                
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec_()
+            
+            # 只保留支援的檔案
+            if supported_files:
+                self.input_files = supported_files
+                if len(supported_files) == 1:
+                    filename = os.path.basename(supported_files[0])
+                    self.input_files_label.setText(f"已選擇: {filename}")
+                else:
+                    self.input_files_label.setText(f"已選擇 {len(supported_files)} 個檔案")
+                
+                self.input_files_label.setStyleSheet("color: #333;")
+            else:
+                # 所有檔案都不支援
+                self.input_files = []
+                self.input_files_label.setText("請選擇支援的檔案格式")
+                self.input_files_label.setStyleSheet("color: #d32f2f;")
     
     def _select_output_directory(self):
         """選擇輸出目錄"""

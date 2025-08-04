@@ -62,6 +62,13 @@ class WelcomePage(QWidget):
         )
         features_layout.addWidget(fd_card)
         
+        # Pandoc 工具卡片
+        pandoc_card = self.create_feature_card(
+            "🔄", "文檔轉換", 
+            "使用 Pandoc 萬能轉換器，支援 Markdown、HTML、DOCX、ODT 等格式互轉。注意：Pandoc 可轉出 PDF，但不能從 PDF 轉換。"
+        )
+        features_layout.addWidget(pandoc_card)
+        
         # Poppler 工具卡片
         poppler_card = self.create_feature_card(
             "📄", "PDF 處理", 
