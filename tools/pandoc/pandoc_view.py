@@ -552,181 +552,143 @@ class PandocView(QWidget):
         """更新狀態指示器"""
         self.status_indicator.set_status(status, message)
     
-    def _create_help_content(self) -> QLabel:
+    def _create_help_content(self) -> QWidget:
         """創建使用說明內容"""
-        help_label = QLabel()
-        help_label.setWordWrap(True)
-        help_label.setTextFormat(Qt.RichText)
-        help_label.setAlignment(Qt.AlignTop)
-        help_label.setStyleSheet("""
-            QLabel {
-                background-color: #f8f9fa;
-                border: 1px solid #e9ecef;
-                border-radius: 8px;
-                padding: 20px;
-                font-size: 13px;
-                line-height: 1.6;
-            }
-        """)
+        from ui.components.inputs import ModernTextEdit
         
-        help_content = """
-        <div style='font-family: "Microsoft YaHei", sans-serif;'>
-            <h2 style='color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 8px; margin-top: 0;'>
+        help_widget = QWidget()
+        layout = QVBoxLayout()
+        layout.setContentsMargins(10, 10, 10, 10)
+        
+        # 使用 ModernTextEdit 來顯示 HTML 內容
+        help_text = ModernTextEdit()
+        help_text.setReadOnly(True)
+        help_text.setHtml(self._get_help_html_content())
+        
+        layout.addWidget(help_text)
+        help_widget.setLayout(layout)
+        return help_widget
+    
+    def _get_help_html_content(self) -> str:
+        """獲取使用說明的 HTML 內容"""
+        return """
+        <div style='font-family: "Microsoft YaHei", sans-serif; margin: 20px;'>
+            <h2 style='color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;'>
                 🔧 Pandoc 進階選項使用指南
             </h2>
             
-            <p style='color: #7f8c8d; font-size: 14px; margin-bottom: 25px;'>
-                當前 Pandoc 工具提供了三個主要的進階選項，幫助您創建專業級的文檔輸出。
+            <p style='color: #7f8c8d; margin-bottom: 25px;'>
+                Pandoc 工具提供了三個主要的進階選項，幫助您創建專業級的文檔輸出。
             </p>
             
-            <div style='margin-bottom: 30px;'>
-                <h3 style='color: #e74c3c; margin-bottom: 10px;'>📄 1. 自訂模板檔案</h3>
-                <div style='background: #fff; border-left: 4px solid #e74c3c; padding: 15px; margin-bottom: 15px;'>
-                    <p><strong>用途：</strong>控制輸出文檔的結構和格式</p>
-                    <p><strong>使用方法：</strong></p>
-                    <ul>
-                        <li>點擊「瀏覽」按鈕選擇 .template 或相關模板檔案</li>
-                        <li>模板檔案定義了輸出文檔的整體結構</li>
-                    </ul>
-                    <p><strong>常見模板類型：</strong></p>
-                    <ul>
-                        <li><strong>HTML 模板：</strong>自定義網頁樣式和結構</li>
-                        <li><strong>LaTeX 模板：</strong>自定義 PDF 排版格式</li>
-                        <li><strong>Word 模板：</strong>自定義 DOCX 文檔樣式</li>
-                    </ul>
-                    <p><strong>範例使用場景：</strong></p>
-                    <ul>
-                        <li>學術論文 → 使用 IEEE 或 ACM 模板</li>
-                        <li>公司報告 → 使用企業品牌模板</li>
-                        <li>個人部落格 → 使用自製 HTML 模板</li>
-                    </ul>
-                </div>
+            <h3 style='color: #e74c3c; margin-top: 30px;'>📄 1. 自訂模板檔案</h3>
+            <div style='background: #fff5f5; border-left: 4px solid #e74c3c; padding: 15px; margin: 15px 0;'>
+                <p><b>用途：</b>控制輸出文檔的結構和格式</p>
+                <p><b>使用方法：</b></p>
+                <ul>
+                    <li>點擊「瀏覽」按鈕選擇模板檔案</li>
+                    <li>支援 HTML、LaTeX、Word 等模板格式</li>
+                </ul>
+                <p><b>應用場景：</b></p>
+                <ul>
+                    <li>學術論文 → IEEE/ACM 模板</li>
+                    <li>公司報告 → 企業品牌模板</li>
+                    <li>個人部落格 → 自製 HTML 模板</li>
+                </ul>
             </div>
             
-            <div style='margin-bottom: 30px;'>
-                <h3 style='color: #f39c12; margin-bottom: 10px;'>🎨 2. CSS 樣式檔案</h3>
-                <div style='background: #fff; border-left: 4px solid #f39c12; padding: 15px; margin-bottom: 15px;'>
-                    <p><strong>用途：</strong>為 HTML 輸出添加視覺樣式</p>
-                    <p><strong>使用方法：</strong></p>
-                    <ul>
-                        <li>點擊「瀏覽」按鈕選擇 .css 檔案</li>
-                        <li>只在輸出格式為 HTML 時有效果</li>
-                    </ul>
-                    <p><strong>功能說明：</strong></p>
-                    <ul>
-                        <li>控制字體、顏色、間距、排版</li>
-                        <li>添加響應式設計</li>
-                        <li>自定義頁面布局</li>
-                    </ul>
-                    <p><strong>範例 CSS 效果：</strong></p>
-                    <pre style='background: #2c3e50; color: #ecf0f1; padding: 10px; border-radius: 4px; font-size: 12px;'>
-/* 現代化文檔樣式 */
-body { font-family: 'Microsoft YaHei', sans-serif; }
-h1 { color: #2c3e50; border-bottom: 2px solid #3498db; }
-code { background: #f8f9fa; padding: 2px 4px; }</pre>
-                </div>
+            <h3 style='color: #f39c12; margin-top: 30px;'>🎨 2. CSS 樣式檔案</h3>
+            <div style='background: #fffaf0; border-left: 4px solid #f39c12; padding: 15px; margin: 15px 0;'>
+                <p><b>用途：</b>為 HTML 輸出添加視覺樣式</p>
+                <p><b>使用方法：</b></p>
+                <ul>
+                    <li>點擊「瀏覽」按鈕選擇 .css 檔案</li>
+                    <li>僅在輸出格式為 HTML 時有效</li>
+                </ul>
+                <p><b>功能：</b>控制字體、顏色、間距、響應式設計</p>
             </div>
             
-            <div style='margin-bottom: 30px;'>
-                <h3 style='color: #27ae60; margin-bottom: 10px;'>📋 3. 元數據設定</h3>
-                <div style='background: #fff; border-left: 4px solid #27ae60; padding: 15px; margin-bottom: 15px;'>
-                    <p><strong>用途：</strong>為文檔添加標題、作者、日期等資訊</p>
-                    <p><strong>格式說明：</strong>每行一個 key:value 配對</p>
-                    
-                    <table style='width: 100%; border-collapse: collapse; margin: 15px 0;'>
-                        <tr style='background: #ecf0f1;'>
-                            <th style='border: 1px solid #bdc3c7; padding: 8px; text-align: left;'>欄位</th>
-                            <th style='border: 1px solid #bdc3c7; padding: 8px; text-align: left;'>說明</th>
-                            <th style='border: 1px solid #bdc3c7; padding: 8px; text-align: left;'>範例</th>
-                        </tr>
-                        <tr>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'><code>title</code></td>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'>文檔標題</td>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'>title:我的專案報告</td>
-                        </tr>
-                        <tr>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'><code>author</code></td>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'>作者姓名</td>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'>author:張三</td>
-                        </tr>
-                        <tr>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'><code>date</code></td>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'>創建日期</td>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'>date:2025-01-04</td>
-                        </tr>
-                        <tr>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'><code>subject</code></td>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'>主題</td>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'>subject:技術文檔</td>
-                        </tr>
-                        <tr>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'><code>keywords</code></td>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'>關鍵字</td>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'>keywords:Python, AI, 機器學習</td>
-                        </tr>
-                        <tr>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'><code>lang</code></td>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'>語言</td>
-                            <td style='border: 1px solid #bdc3c7; padding: 8px;'>lang:zh-TW</td>
-                        </tr>
-                    </table>
-                    
-                    <p><strong>範例輸入：</strong></p>
-                    <pre style='background: #27ae60; color: white; padding: 10px; border-radius: 4px; font-size: 12px;'>
-title:CLI工具使用手冊
+            <h3 style='color: #27ae60; margin-top: 30px;'>📋 3. 元數據設定</h3>
+            <div style='background: #f0fff4; border-left: 4px solid #27ae60; padding: 15px; margin: 15px 0;'>
+                <p><b>用途：</b>為文檔添加標題、作者、日期等資訊</p>
+                <p><b>格式：</b>每行一個 key:value 配對</p>
+                
+                <table style='width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 13px;'>
+                    <tr style='background: #ecf0f1;'>
+                        <th style='border: 1px solid #bdc3c7; padding: 6px;'>欄位</th>
+                        <th style='border: 1px solid #bdc3c7; padding: 6px;'>說明</th>
+                        <th style='border: 1px solid #bdc3c7; padding: 6px;'>範例</th>
+                    </tr>
+                    <tr>
+                        <td style='border: 1px solid #bdc3c7; padding: 6px;'>title</td>
+                        <td style='border: 1px solid #bdc3c7; padding: 6px;'>文檔標題</td>
+                        <td style='border: 1px solid #bdc3c7; padding: 6px;'>title:我的報告</td>
+                    </tr>
+                    <tr>
+                        <td style='border: 1px solid #bdc3c7; padding: 6px;'>author</td>
+                        <td style='border: 1px solid #bdc3c7; padding: 6px;'>作者姓名</td>
+                        <td style='border: 1px solid #bdc3c7; padding: 6px;'>author:張三</td>
+                    </tr>
+                    <tr>
+                        <td style='border: 1px solid #bdc3c7; padding: 6px;'>date</td>
+                        <td style='border: 1px solid #bdc3c7; padding: 6px;'>創建日期</td>
+                        <td style='border: 1px solid #bdc3c7; padding: 6px;'>date:2025-01-04</td>
+                    </tr>
+                    <tr>
+                        <td style='border: 1px solid #bdc3c7; padding: 6px;'>keywords</td>
+                        <td style='border: 1px solid #bdc3c7; padding: 6px;'>關鍵字</td>
+                        <td style='border: 1px solid #bdc3c7; padding: 6px;'>keywords:AI, Python</td>
+                    </tr>
+                </table>
+                
+                <p><b>範例輸入：</b></p>
+                <pre style='background: #2c3e50; color: white; padding: 10px; border-radius: 4px; font-size: 12px;'>title:CLI工具使用手冊
 author:開發團隊
 date:2025-01-04
-subject:軟體操作指南
 keywords:CLI, 工具, 文檔轉換</pre>
-                </div>
             </div>
             
-            <div style='margin-bottom: 30px;'>
-                <h3 style='color: #8e44ad; margin-bottom: 10px;'>💡 實用組合範例</h3>
-                
-                <div style='background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 15px; margin-bottom: 15px;'>
-                    <h4 style='color: #2c3e50; margin-top: 0;'>📊 專業報告輸出</h4>
-                    <ul>
-                        <li><strong>格式：</strong>PDF</li>
-                        <li><strong>模板：</strong>使用公司 LaTeX 模板</li>
-                        <li><strong>元數據：</strong>title:季度業績報告, author:財務部, date:2025-Q1</li>
-                    </ul>
-                </div>
-                
-                <div style='background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 15px; margin-bottom: 15px;'>
-                    <h4 style='color: #2c3e50; margin-top: 0;'>🌐 部落格文章</h4>
-                    <ul>
-                        <li><strong>格式：</strong>HTML</li>
-                        <li><strong>CSS：</strong>使用響應式樣式表</li>
-                        <li><strong>元數據：</strong>title:Pandoc 使用教學, author:技術團隊</li>
-                    </ul>
-                </div>
-                
-                <div style='background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 15px; margin-bottom: 15px;'>
-                    <h4 style='color: #2c3e50; margin-top: 0;'>📖 學術論文</h4>
-                    <ul>
-                        <li><strong>格式：</strong>PDF</li>
-                        <li><strong>模板：</strong>IEEE 或 ACM 會議模板</li>
-                        <li><strong>元數據：</strong>title:人工智慧在文檔處理中的應用, author:研究員甲, 研究員乙</li>
-                    </ul>
-                </div>
+            <h3 style='color: #8e44ad; margin-top: 30px;'>💡 實用組合範例</h3>
+            
+            <div style='background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0;'>
+                <h4 style='margin-top: 0; color: #495057;'>📊 專業報告</h4>
+                <ul>
+                    <li><b>格式：</b>PDF</li>
+                    <li><b>模板：</b>公司 LaTeX 模板</li>
+                    <li><b>元數據：</b>title:季度報告, author:財務部</li>
+                </ul>
             </div>
             
-            <div style='background: #e8f6fd; border: 1px solid #bee5eb; border-radius: 6px; padding: 15px; margin-bottom: 20px;'>
-                <h3 style='color: #0c5460; margin-top: 0;'>🚀 進階技巧</h3>
+            <div style='background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0;'>
+                <h4 style='margin-top: 0; color: #495057;'>🌐 部落格文章</h4>
+                <ul>
+                    <li><b>格式：</b>HTML</li>
+                    <li><b>CSS：</b>響應式樣式表</li>
+                    <li><b>元數據：</b>title:技術教學, author:技術團隊</li>
+                </ul>
+            </div>
+            
+            <div style='background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin: 15px 0;'>
+                <h4 style='margin-top: 0; color: #495057;'>📖 學術論文</h4>
+                <ul>
+                    <li><b>格式：</b>PDF</li>
+                    <li><b>模板：</b>IEEE 會議模板</li>
+                    <li><b>元數據：</b>title:研究論文, author:研究員</li>
+                </ul>
+            </div>
+            
+            <div style='background: #e8f6fd; border: 1px solid #bee5eb; border-radius: 6px; padding: 15px; margin: 20px 0;'>
+                <h4 style='margin-top: 0; color: #0c5460;'>🚀 進階技巧</h4>
                 <ol>
-                    <li><strong>模板變數：</strong>在模板中可使用 $title$, $author$ 等變數來引用元數據</li>
-                    <li><strong>條件輸出：</strong>某些模板支援條件邏輯，根據元數據動態調整內容</li>
-                    <li><strong>多語言支援：</strong>透過 lang 元數據設定適當的語言格式</li>
-                    <li><strong>PDF 中文支援：</strong>系統自動配置 XeLaTeX 引擎和中文字體</li>
+                    <li>模板變數：使用 $title$、$author$ 引用元數據</li>
+                    <li>條件輸出：模板可根據元數據動態調整</li>
+                    <li>多語言支援：透過 lang 設定語言格式</li>
+                    <li>PDF 中文：系統自動配置 XeLaTeX 和中文字體</li>
                 </ol>
             </div>
             
-            <p style='text-align: center; color: #7f8c8d; font-style: italic; margin-top: 30px;'>
-                💡 提示：所有進階選項都是可選的，您可以根據需要靈活組合使用
+            <p style='text-align: center; color: #6c757d; font-style: italic; margin-top: 30px;'>
+                💡 提示：所有進階選項都是可選的，可根據需要靈活組合使用
             </p>
         </div>
         """
-        
-        help_label.setText(help_content)
-        return help_label
