@@ -18,6 +18,14 @@
 - 支援正則表達式和檔案類型篩選
 - 隱藏檔案和大小寫敏感搜尋選項
 
+### Pandoc - 萬能文檔轉換器
+- **50+ 格式支援** - 支援 Markdown、HTML、PDF、DOCX、EPUB 等格式互轉
+- **批量轉換** - 一次處理多個檔案，提升工作效率
+- **自訂模板** - 支援自訂 HTML/LaTeX 模板和 CSS 樣式
+- **元數據管理** - 設定文檔標題、作者、日期等資訊
+- **Standalone 模式** - 生成包含完整樣式的獨立文檔
+- **進階選項** - 支援引用處理、數學公式、語法高亮等功能
+
 ### Poppler Tools - PDF 處理工具集
 - **PDF 資訊** - 查看 PDF 文件詳細資訊
 - **文字提取** - 將 PDF 轉換為純文字
@@ -33,6 +41,12 @@
 - PyQt5 5.15.0+
 
 ### 外部工具
+
+**Pandoc 工具（推薦）**:
+- Windows: 從 [Pandoc 官網](https://pandoc.org/installing.html) 下載安裝包
+- macOS: `brew install pandoc`
+- Linux: `apt-get install pandoc` 或 `yum install pandoc`
+- 驗證安裝: `pandoc --version`
 
 **fd 工具（必需）**:
 - Windows: 可通過 WinGet 安裝 `winget install sharkdp.fd`

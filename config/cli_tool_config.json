@@ -15,6 +15,20 @@
       "pdftoppm_path": "pdftoppm",
       "pdftohtml_path": "pdftohtml",
       "qpdf_path": "qpdf"
+    },
+    "pandoc": {
+      "executable_path": "pandoc",
+      "default_output_format": "html",
+      "default_output_dir": "",
+      "standalone_by_default": true,
+      "enable_citations": false,
+      "default_metadata": {
+        "title": "",
+        "author": "",
+        "date": ""
+      },
+      "common_templates": [],
+      "common_css_files": []
     }
   },
   "ui": {
