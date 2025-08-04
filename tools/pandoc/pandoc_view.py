@@ -57,9 +57,12 @@ class PandocView(QWidget):
         right_panel = self._create_output_panel()
         splitter.addWidget(right_panel)
         
-        # 設定分割比例
-        splitter.setStretchFactor(0, 1)  # 左側面板
-        splitter.setStretchFactor(1, 1)  # 右側面板
+        # 設定分割比例 (左側:右側 = 2:3，給右側更多空間顯示使用說明)
+        splitter.setStretchFactor(0, 2)  # 左側面板
+        splitter.setStretchFactor(1, 3)  # 右側面板
+        
+        # 設定初始分割尺寸
+        splitter.setSizes([400, 600])  # 左側 400px，右側 600px
         
         main_layout.addWidget(splitter)
         
@@ -565,6 +568,11 @@ class PandocView(QWidget):
         help_text.setReadOnly(True)
         help_text.setHtml(self._get_help_html_content())
         
+        # 設定字體大小以提升可讀性
+        font = help_text.font()
+        font.setPointSize(10)  # 略微增大字體
+        help_text.setFont(font)
+        
         layout.addWidget(help_text)
         help_widget.setLayout(layout)
         return help_widget
@@ -572,7 +580,7 @@ class PandocView(QWidget):
     def _get_help_html_content(self) -> str:
         """獲取使用說明的 HTML 內容"""
         return """
-        <div style='font-family: "Microsoft YaHei", sans-serif; margin: 20px;'>
+        <div style='font-family: "Microsoft YaHei", sans-serif; margin: 20px; font-size: 14px;'>
             <h2 style='color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;'>
                 🔧 Pandoc 進階選項使用指南
             </h2>
