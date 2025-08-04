@@ -22,7 +22,7 @@ if requirements_path.exists():
 
 setup(
     name="cli-tool",
-    version="1.0.0",
+    version="2.1.0",
     description="A PyQt5-based GUI application integrating multiple CLI tools",
     long_description=long_description,
     long_description_content_type="text/markdown",
