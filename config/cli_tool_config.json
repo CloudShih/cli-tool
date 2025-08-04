@@ -29,6 +29,15 @@
       },
       "common_templates": [],
       "common_css_files": []
+    },
+    "glow": {
+      "executable_path": "glow",
+      "default_theme": "auto",
+      "default_width": 120,
+      "use_cache": true,
+      "cache_ttl": 3600,
+      "max_cache_size": 104857600,
+      "recent_files": []
     }
   },
   "ui": {

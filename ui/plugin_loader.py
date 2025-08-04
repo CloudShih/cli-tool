@@ -350,6 +350,7 @@ class PluginLoadingDialog(QWidget):
             # 先創建基本的插件卡片
             plugin_info = [
                 ("fd", "快速檔案和目錄搜尋工具"),
+                ("glow", "美觀的 Markdown 文檔閱讀器"),
                 ("pandoc", "萬能文檔轉換器，支援 50+ 種格式"),
                 ("poppler", "PDF 處理工具集"),
             ]

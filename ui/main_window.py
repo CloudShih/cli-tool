@@ -62,6 +62,13 @@ class WelcomePage(QWidget):
         )
         features_layout.addWidget(fd_card)
         
+        # Glow 工具卡片
+        glow_card = self.create_feature_card(
+            "📖", "Markdown 閱讀器", 
+            "使用 Glow 工具美觀地預覽 Markdown 文檔，支援本地檔案和遠程 URL，提供多種主題樣式。"
+        )
+        features_layout.addWidget(glow_card)
+        
         # Pandoc 工具卡片
         pandoc_card = self.create_feature_card(
             "🔄", "文檔轉換", 
