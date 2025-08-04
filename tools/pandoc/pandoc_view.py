@@ -269,24 +269,17 @@ class PandocView(QWidget):
         help_tab = QWidget()
         help_layout = QVBoxLayout()
         
-        # 創建可滾動的說明文本區域
-        help_scroll = QScrollArea()
-        help_scroll.setWidgetResizable(True)
-        help_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        help_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # 直接使用 ModernTextEdit，與其他分頁保持一致的結構
+        self.help_text = ModernTextEdit()
+        self.help_text.setReadOnly(True)
+        self.help_text.setHtml(self._get_help_html_content())
         
-        help_content = QWidget()
-        help_content_layout = QVBoxLayout()
+        # 設定字體大小以提升可讀性
+        font = self.help_text.font()
+        font.setPointSize(10)  # 略微增大字體
+        self.help_text.setFont(font)
         
-        # 使用說明內容
-        help_text = self._create_help_content()
-        help_content_layout.addWidget(help_text)
-        help_content_layout.addStretch()
-        
-        help_content.setLayout(help_content_layout)
-        help_scroll.setWidget(help_content)
-        
-        help_layout.addWidget(help_scroll)
+        help_layout.addWidget(self.help_text)
         help_tab.setLayout(help_layout)
         tab_widget.addTab(help_tab, "使用說明")
         
@@ -555,27 +548,6 @@ class PandocView(QWidget):
         """更新狀態指示器"""
         self.status_indicator.set_status(status, message)
     
-    def _create_help_content(self) -> QWidget:
-        """創建使用說明內容"""
-        from ui.components.inputs import ModernTextEdit
-        
-        help_widget = QWidget()
-        layout = QVBoxLayout()
-        layout.setContentsMargins(10, 10, 10, 10)
-        
-        # 使用 ModernTextEdit 來顯示 HTML 內容
-        help_text = ModernTextEdit()
-        help_text.setReadOnly(True)
-        help_text.setHtml(self._get_help_html_content())
-        
-        # 設定字體大小以提升可讀性
-        font = help_text.font()
-        font.setPointSize(10)  # 略微增大字體
-        help_text.setFont(font)
-        
-        layout.addWidget(help_text)
-        help_widget.setLayout(layout)
-        return help_widget
     
     def _get_help_html_content(self) -> str:
         """獲取使用說明的 HTML 內容"""
