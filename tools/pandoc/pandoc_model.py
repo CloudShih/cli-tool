@@ -54,6 +54,23 @@ class PandocModel:
         self.conv = Ansi2HTMLConverter()
         logger.info(f"PandocModel initialized with executable: {self.pandoc_executable}")
     
+    def check_pdf_engine_availability(self) -> Tuple[bool, str]:
+        """檢查 PDF 引擎是否可用"""
+        try:
+            # 檢查 XeLaTeX
+            result = subprocess.run(
+                ['xelatex', '--version'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            if result.returncode == 0:
+                return True, "XeLaTeX engine available"
+            else:
+                return False, "XeLaTeX engine not found"
+        except Exception as e:
+            return False, f"PDF engine check failed: {str(e)}"
+    
     def check_pandoc_availability(self) -> Tuple[bool, str]:
         """檢查 pandoc 工具是否可用"""
         try:
@@ -143,6 +160,33 @@ class PandocModel:
             # 輸出格式
             if output_format:
                 command.extend(['-t', output_format])
+            
+            # PDF 特殊處理
+            if output_format == 'pdf':
+                # 檢查 PDF 引擎可用性
+                pdf_available, pdf_msg = self.check_pdf_engine_availability()
+                if not pdf_available:
+                    error_msg = (
+                        "❌ PDF 引擎不可用\n\n"
+                        f"詳細信息: {pdf_msg}\n\n"
+                        "💡 解決方案:\n"
+                        "• 安裝 MiKTeX 或 TeX Live\n"
+                        "• 確保 XeLaTeX 在系統 PATH 中\n"
+                        "• 重新啟動應用程式"
+                    )
+                    logger.warning(f"PDF engine not available: {pdf_msg}")
+                    return False, "", error_msg
+                
+                # 使用 XeLaTeX 引擎支援中文
+                command.extend(['--pdf-engine=xelatex'])
+                
+                # 設定中文字體
+                command.extend(['-V', 'mainfont=Microsoft YaHei'])
+                command.extend(['-V', 'sansfont=Microsoft YaHei'])
+                command.extend(['-V', 'monofont=Consolas'])
+                
+                # 設定 LaTeX 中文包
+                command.extend(['-V', 'CJKmainfont=Microsoft YaHei'])
             
             # 輸入檔案
             command.append(input_file)
