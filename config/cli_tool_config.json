@@ -37,7 +37,9 @@
       "use_cache": true,
       "cache_ttl": 3600,
       "max_cache_size": 104857600,
-      "recent_files": []
+      "recent_files": [
+        "D:/ClaudeCode/projects/cli_tool/CHANGELOG.md"
+      ]
     }
   },
   "ui": {

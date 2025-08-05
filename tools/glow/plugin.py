@@ -4,7 +4,7 @@ Glow Markdown 閱讀器插件實現
 """
 
 import logging
-from typing import Dict, Any, Optional
+from typing import List, Dict, Any, Optional
 from PyQt5.QtWidgets import QWidget
 from core.plugin_manager import PluginInterface
 from .glow_model import GlowModel
@@ -22,50 +22,117 @@ class GlowPlugin(PluginInterface):
         self._model = None
         self._view = None
         self._controller = None
-        self._widget = None
+        self._initialized = False
         
         logger.info("GlowPlugin initialized")
     
-    def get_name(self) -> str:
-        """獲取插件名稱"""
+    @property
+    def name(self) -> str:
+        """插件名稱"""
         return "glow"
+    
+    @property 
+    def description(self) -> str:
+        """插件描述"""
+        return "使用 Glow 工具提供美觀的 Markdown 文檔預覽功能，支援本地檔案和遠程 URL"
+    
+    @property
+    def version(self) -> str:
+        """插件版本"""
+        return "1.0.0"
+    
+    @property
+    def required_tools(self) -> List[str]:
+        """所需的外部工具列表"""
+        return ["glow"]
+    
+    def initialize(self) -> bool:
+        """初始化插件"""
+        try:
+            if self._initialized:
+                logger.warning("GlowPlugin already initialized")
+                return True
+            
+            # 創建 MVC 組件
+            self._model = self.create_model()
+            self._view = self.create_view()
+            self._controller = self.create_controller(self._model, self._view)
+            
+            self._initialized = True
+            logger.info("GlowPlugin initialized successfully")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize GlowPlugin: {e}")
+            return False
+    
+    def create_view(self):
+        """創建插件的 GUI 視圖"""
+        return GlowView()
+    
+    def create_model(self):
+        """創建插件的數據模型"""
+        return GlowModel()
+    
+    def create_controller(self, model, view):
+        """創建插件的控制器"""
+        return GlowController(view, model)
+    
+    def cleanup(self):
+        """清理插件資源"""
+        try:
+            if self._controller:
+                self._controller.cleanup()
+            
+            # 重置組件
+            self._controller = None
+            self._view = None
+            self._model = None
+            self._initialized = False
+            
+            logger.info("GlowPlugin cleanup completed")
+            
+        except Exception as e:
+            logger.error(f"Error during GlowPlugin cleanup: {e}")
+    
+    def check_tools_availability(self) -> bool:
+        """檢查所需工具是否可用"""
+        try:
+            # 創建臨時模型實例進行檢查
+            temp_model = GlowModel()
+            available, _, _ = temp_model.check_glow_availability()
+            return available
+        except Exception as e:
+            logger.error(f"Error checking Glow tool availability: {e}")
+            return False
+    
+    def get_widget(self) -> Optional[QWidget]:
+        """獲取插件的主 widget"""
+        if not self._initialized:
+            if not self.initialize():
+                return None
+        
+        return self._view
+    
+    def is_initialized(self) -> bool:
+        """檢查插件是否已初始化"""
+        return self._initialized
     
     def get_display_name(self) -> str:
         """獲取插件顯示名稱"""
         return "Markdown 閱讀器"
-    
-    def get_description(self) -> str:
-        """獲取插件描述"""
-        return "使用 Glow 工具提供美觀的 Markdown 文檔預覽功能，支援本地檔案和遠程 URL"
-    
-    def get_version(self) -> str:
-        """獲取插件版本"""
-        return "1.0.0"
-    
+        
     def get_author(self) -> str:
         """獲取插件作者"""
         return "CLI Tool Developer"
     
     def get_icon_path(self) -> Optional[str]:
         """獲取插件圖標路徑"""
-        # 返回 None 使用預設圖標，或者提供自訂圖標路徑
         return None
     
-    def get_required_tools(self) -> Dict[str, str]:
-        """獲取插件所需的外部工具"""
-        return {
-            "glow": "Glow CLI markdown reader - https://github.com/charmbracelet/glow"
-        }
-    
-    def get_supported_file_types(self) -> list:
+    def get_supported_file_types(self) -> List[str]:
         """獲取支援的檔案類型"""
-        return [
-            ".md",        # Markdown
-            ".markdown",  # Markdown 完整擴展名
-            ".mdown",     # Markdown 簡化擴展名
-            ".mkd",       # Markdown 短擴展名
-            ".txt"        # 純文字檔案
-        ]
+        return [".md", ".markdown", ".mdown", ".mkd", ".txt"]
     
     def get_configuration_schema(self) -> Dict[str, Any]:
         """獲取配置模式"""
@@ -76,7 +143,7 @@ class GlowPlugin(PluginInterface):
                 "description": "Glow 執行檔路徑"
             },
             "default_theme": {
-                "type": "string",
+                "type": "string", 
                 "default": "auto",
                 "enum": ["auto", "dark", "light", "pink", "dracula", "notty"],
                 "description": "預設主題樣式"
@@ -113,80 +180,6 @@ class GlowPlugin(PluginInterface):
                 "description": "最近使用的檔案列表"
             }
         }
-    
-    def is_available(self) -> bool:
-        """檢查插件是否可用"""
-        try:
-            # 檢查必需的工具是否可用
-            return self.check_tools_availability()
-        except Exception as e:
-            logger.error(f"Error checking Glow plugin availability: {e}")
-            return False
-    
-    def check_tools_availability(self) -> bool:
-        """檢查所需工具是否可用 - PluginInterface 要求的方法"""
-        try:
-            # 創建臨時模型實例進行檢查
-            temp_model = GlowModel()
-            available, _, _ = temp_model.check_glow_availability()
-            return available
-        except Exception as e:
-            logger.error(f"Error checking Glow tool availability: {e}")
-            return False
-    
-    def initialize(self) -> bool:
-        """初始化插件"""
-        try:
-            if self._model is not None:
-                logger.warning("GlowPlugin already initialized")
-                return True
-            
-            # 創建 MVC 組件
-            self._model = GlowModel()
-            self._view = GlowView()
-            self._controller = GlowController(self._view, self._model)
-            
-            # 創建主 widget
-            self._widget = self._view
-            
-            logger.info("GlowPlugin initialized successfully")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Failed to initialize GlowPlugin: {e}")
-            return False
-    
-    def get_widget(self) -> Optional[QWidget]:
-        """獲取插件的主 widget"""
-        if not self.is_initialized():
-            if not self.initialize():
-                return None
-        
-        return self._widget
-    
-    def is_initialized(self) -> bool:
-        """檢查插件是否已初始化"""
-        return (self._model is not None and 
-                self._view is not None and 
-                self._controller is not None and 
-                self._widget is not None)
-    
-    def cleanup(self):
-        """清理插件資源"""
-        try:
-            if self._controller:
-                self._controller.cleanup()
-            
-            # 重置組件
-            self._controller = None
-            self._widget = None
-            self._view = None
-            self._model = None
-            
-            logger.info("GlowPlugin cleanup completed")
-            
-        except Exception as e:
-            logger.error(f"Error during GlowPlugin cleanup: {e}")
     
     def get_settings(self) -> Dict[str, Any]:
         """獲取插件設定"""
@@ -274,7 +267,7 @@ class GlowPlugin(PluginInterface):
             }
             
             if self.is_initialized() and self._view:
-                status_info["current_source"] = self._view.current_source
+                status_info["current_source"] = getattr(self._view, 'current_source', '')
                 
             if self.is_initialized() and self._model:
                 status_info["cache_info"] = self._model.get_cache_info()

@@ -42,6 +42,9 @@ class GlowModel:
         # 支援的 Markdown 檔案擴展名
         self.supported_extensions = ['.md', '.markdown', '.mdown', '.mkd', '.txt']
         
+        # HTML 轉換邏輯版本 - 修改此版本會使所有快取失效
+        self.html_conversion_version = "v2.0-enhanced-html-parsing"
+        
         # 快取設定
         self.cache_dir = os.path.join(tempfile.gettempdir(), 'cli_tool_glow_cache')
         self.cache_ttl = glow_config.get('cache_ttl', 3600)  # 1小時
@@ -50,10 +53,56 @@ class GlowModel:
         # 確保快取目錄存在
         os.makedirs(self.cache_dir, exist_ok=True)
         
+        # 強制清除舊版本快取（防止舊快取干擾新的 HTML 轉換邏輯）
+        self._clear_legacy_cache()
+        
         # ANSI 到 HTML 轉換器
         self.ansi_converter = Ansi2HTMLConverter(dark_bg=True)
         
         logger.info("GlowModel initialized with configuration")
+    
+    def _clear_legacy_cache(self):
+        """清除舊版本快取檔案"""
+        try:
+            if not os.path.exists(self.cache_dir):
+                return
+            
+            # 檢查是否有版本標記檔案
+            version_file = os.path.join(self.cache_dir, '.version')
+            current_version = self.html_conversion_version
+            
+            if os.path.exists(version_file):
+                try:
+                    with open(version_file, 'r', encoding='utf-8') as f:
+                        stored_version = f.read().strip()
+                    
+                    if stored_version == current_version:
+                        # 版本相同，無需清除
+                        return
+                except Exception:
+                    pass
+            
+            # 清除所有快取檔案
+            cache_files = [f for f in os.listdir(self.cache_dir) if f.endswith('.cache')]
+            removed_count = 0
+            
+            for cache_file in cache_files:
+                try:
+                    os.remove(os.path.join(self.cache_dir, cache_file))
+                    removed_count += 1
+                except Exception as e:
+                    logger.warning(f"Failed to remove legacy cache file {cache_file}: {e}")
+            
+            # 寫入新版本標記
+            try:
+                with open(version_file, 'w', encoding='utf-8') as f:
+                    f.write(current_version)
+                logger.info(f"Cleared {removed_count} legacy cache files, updated to version {current_version}")
+            except Exception as e:
+                logger.warning(f"Failed to write version file: {e}")
+                
+        except Exception as e:
+            logger.warning(f"Error clearing legacy cache: {e}")
     
     def check_glow_availability(self) -> Tuple[bool, str, str]:
         """
@@ -147,15 +196,17 @@ class GlowModel:
     
     def get_cache_key(self, content_source: str) -> str:
         """
-        生成快取鍵值
+        生成快取鍵值，包含 HTML 轉換版本
         
         Args:
             content_source: 內容來源 (檔案路徑或URL)
         
         Returns:
-            str: 快取鍵值
+            str: 快取鍵值 (MD5雜湊)
         """
-        return hashlib.md5(content_source.encode('utf-8')).hexdigest()
+        # 包含版本信息以確保快取在邏輯更新時失效
+        versioned_source = f"{content_source}:{self.html_conversion_version}"
+        return hashlib.md5(versioned_source.encode('utf-8')).hexdigest()
     
     def get_cached_content(self, cache_key: str) -> Optional[str]:
         """
@@ -247,6 +298,12 @@ class GlowModel:
             # 添加寬度參數
             command.extend(['--width', str(width)])
             
+            # 設置環境變量模擬終端環境，讓 Glow 輸出 ANSI 格式
+            env = os.environ.copy()
+            env['TERM'] = 'xterm-256color'  # 模擬支持 256 色的終端
+            env['FORCE_COLOR'] = '1'        # 強制彩色輸出
+            env['COLORTERM'] = 'truecolor'  # 支持真彩色
+            
             # 根據來源類型處理輸入
             if source_type == "file":
                 if not os.path.exists(source):
@@ -274,7 +331,8 @@ class GlowModel:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 stdin=subprocess.PIPE if source_type == "text" else None,
-                text=False  # 使用 bytes 模式
+                text=False,  # 使用 bytes 模式
+                env=env      # 使用設置的環境變量
             )
             
             stdout_bytes, stderr_bytes = process.communicate(
@@ -295,11 +353,38 @@ class GlowModel:
             stderr = safe_decode(stderr_bytes)
             
             if process.returncode == 0:
-                # 成功執行，轉換 ANSI 到 HTML
-                html_content = self.ansi_converter.convert(stdout, full=False)
+                # 成功執行，處理 Glow 輸出
+                logger.info(f"[DEBUG] Glow command succeeded. Raw output length: {len(stdout)}")
+                logger.info(f"[DEBUG] Raw output preview: {repr(stdout[:200])}")
+                
+                if stdout.strip():
+                    # 嘗試 ANSI 轉換，如果沒有 ANSI 碼則直接使用文本
+                    has_ansi = '\x1b[' in stdout
+                    logger.info(f"[DEBUG] ANSI sequences detected: {has_ansi}")
+                    
+                    if has_ansi:  # 檢查是否包含 ANSI 轉義序列
+                        html_content = self.ansi_converter.convert(stdout, full=False)
+                        logger.info(f"[DEBUG] Used ANSI converter. HTML length: {len(html_content)}")
+                    else:
+                        # 純文本，需要手動轉換為 HTML
+                        logger.info(f"[DEBUG] Using plain text to HTML conversion")
+                        html_content = self._convert_plain_text_to_html(stdout)
+                        logger.info(f"[DEBUG] Plain text conversion result. HTML length: {len(html_content)}")
+                        logger.info(f"[DEBUG] HTML preview: {html_content[:300]}...")
+                else:
+                    # 空輸出，使用原始內容
+                    logger.warning(f"[DEBUG] Empty stdout, using fallback")
+                    if source_type == "text":
+                        html_content = self._convert_markdown_to_basic_html(source)
+                    else:
+                        html_content = "<p>無內容顯示</p>"
                 
                 # 添加自訂 CSS 樣式
                 styled_html = self._apply_custom_styling(html_content, theme)
+                logger.info(f"[DEBUG] After styling. Final HTML length: {len(styled_html)}")
+                logger.info(f"[DEBUG] Final HTML contains <html> tag: {'<html>' in styled_html}")
+                logger.info(f"[DEBUG] Final HTML contains <h1> tag: {'<h1' in styled_html}")
+                logger.info(f"[DEBUG] Final HTML contains <h2> tag: {'<h2' in styled_html}")
                 
                 # 保存到快取
                 if use_cache and source_type in ["file", "url"]:
@@ -322,6 +407,158 @@ class GlowModel:
             logger.error(error_msg)
             return False, "", error_msg
     
+    def _convert_plain_text_to_html(self, text: str) -> str:
+        """
+        將 Glow 的純文本輸出轉換為 HTML
+        
+        Args:
+            text: Glow 輸出的純文本
+            
+        Returns:
+            str: 轉換後的 HTML 內容
+        """
+        import html
+        
+        lines = text.split('\n')
+        formatted_lines = []
+        
+        for line in lines:
+            original_line = line
+            line = line.rstrip()
+            
+            # 檢測標題（基於 Glow 渲染的文字樣式）
+            # Glow 會在標題前後添加空格，標題通常比較突出
+            stripped_line = line.strip()
+            
+            # 檢測第一級標題（通常比較大且獨立一行）
+            if (stripped_line and 
+                not stripped_line.startswith(' ') and 
+                len(stripped_line) > 5 and
+                not stripped_line.startswith('•') and
+                not stripped_line.startswith('-') and
+                not stripped_line.startswith('*') and
+                ('Changelog' in stripped_line or 
+                 'Major Feature' in stripped_line or
+                 'Major Release' in stripped_line or
+                 stripped_line.startswith('[') and ']' in stripped_line)):
+                formatted_lines.append(f'<h1 style="color: #2196F3; margin: 20px 0 10px 0; font-weight: bold;">{html.escape(stripped_line)}</h1>')
+            
+            # 檢測二級標題（通常以 ### 或其他明顯標記開始）
+            elif (stripped_line.startswith('###') or
+                  ('Added' in stripped_line and len(stripped_line) < 20) or
+                  ('Changed' in stripped_line and len(stripped_line) < 20) or
+                  ('Fixed' in stripped_line and len(stripped_line) < 20) or
+                  ('Enhanced' in stripped_line and len(stripped_line) < 20)):
+                title_text = stripped_line.replace('###', '').strip()
+                formatted_lines.append(f'<h2 style="color: #FF9800; margin: 16px 0 8px 0; font-weight: bold;">{html.escape(title_text)}</h2>')
+            
+            # 檢測三級標題（通常以 #### 開始或包含特定模式）
+            elif (stripped_line.startswith('####') or
+                  (stripped_line.startswith('🚀') or stripped_line.startswith('📄') or
+                   stripped_line.startswith('🎨') or stripped_line.startswith('🔧') or
+                   stripped_line.startswith('🌐') or stripped_line.startswith('📖'))):
+                title_text = stripped_line.replace('####', '').strip()
+                formatted_lines.append(f'<h3 style="color: #4CAF50; margin: 12px 0 6px 0; font-weight: bold;">{html.escape(title_text)}</h3>')
+            
+            # 檢測列表項目（以 • 或 - 開始）
+            elif (stripped_line.startswith('•') or stripped_line.startswith('-') or stripped_line.startswith('*')):
+                # 保持原有縮進
+                indent_level = len(original_line) - len(original_line.lstrip())
+                margin_left = max(0, indent_level * 2)
+                list_text = stripped_line[1:].strip()
+                formatted_lines.append(f'<div style="padding: 2px 0; margin-left: {margin_left}px;"><span style="color: #2196F3;">•</span> {html.escape(list_text)}</div>')
+            
+            # 檢測程式碼區塊或特殊格式（通常有較多縮進）
+            elif line.startswith('    ') and line.strip():
+                formatted_lines.append(f'<div style="background-color: #f8f9fa; padding: 8px; margin: 4px 0; border-left: 3px solid #007acc; font-family: monospace; white-space: pre;">{html.escape(line)}</div>')
+            
+            # 檢測分隔線
+            elif stripped_line.startswith('---') or stripped_line.startswith('___'):
+                formatted_lines.append('<hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0;">')
+            
+            # 檢測空行
+            elif not stripped_line:
+                formatted_lines.append('<div style="height: 8px;"></div>')
+            
+            # 普通文本行
+            else:
+                # 處理粗體（**text**）和斜體（*text*）以及其他格式
+                processed_line = html.escape(line)
+                
+                # 粗體格式
+                processed_line = re.sub(r'\*\*(.*?)\*\*', r'<strong style="color: #1976D2;">\1</strong>', processed_line)
+                # 斜體格式
+                processed_line = re.sub(r'\*(.*?)\*(?!\*)', r'<em style="color: #7B1FA2;">\1</em>', processed_line)
+                # URL 連結
+                processed_line = re.sub(r'(https?://[^\s]+)', r'<a href="\1" style="color: #1976D2; text-decoration: underline;">\1</a>', processed_line)
+                
+                # 保持原有縮進
+                if line.startswith(' '):
+                    indent_level = len(line) - len(line.lstrip())
+                    margin_left = indent_level * 8
+                    formatted_lines.append(f'<div style="padding: 2px 0; margin-left: {margin_left}px;">{processed_line}</div>')
+                else:
+                    formatted_lines.append(f'<div style="padding: 2px 0; line-height: 1.5;">{processed_line}</div>')
+        
+        return ''.join(formatted_lines)
+    
+    def _convert_markdown_to_basic_html(self, markdown_text: str) -> str:
+        """
+        將原始 Markdown 轉換為基本 HTML（備選方案）
+        
+        Args:
+            markdown_text: 原始 Markdown 文本
+            
+        Returns:
+            str: 轉換後的 HTML 內容
+        """
+        import html
+        
+        lines = markdown_text.split('\n')
+        formatted_lines = []
+        
+        for line in lines:
+            line = line.strip()
+            
+            # 標題
+            if line.startswith('# '):
+                formatted_lines.append(f'<h1>{html.escape(line[2:])}</h1>')
+            elif line.startswith('## '):
+                formatted_lines.append(f'<h2>{html.escape(line[3:])}</h2>')
+            elif line.startswith('### '):
+                formatted_lines.append(f'<h3>{html.escape(line[4:])}</h3>')
+            
+            # 程式碼區塊
+            elif line.startswith('```'):
+                if line == '```':
+                    formatted_lines.append('<pre><code>')
+                else:
+                    lang = line[3:].strip()
+                    formatted_lines.append(f'<pre><code class="language-{lang}">')
+            
+            # 列表項目
+            elif line.startswith('- '):
+                formatted_lines.append(f'<li>{html.escape(line[2:])}</li>')
+            
+            # 引用
+            elif line.startswith('> '):
+                formatted_lines.append(f'<blockquote><p>{html.escape(line[2:])}</p></blockquote>')
+            
+            # 空行
+            elif not line:
+                formatted_lines.append('<br>')
+            
+            # 普通段落
+            else:
+                # 處理內聯格式
+                processed_line = html.escape(line)
+                processed_line = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', processed_line)
+                processed_line = re.sub(r'\*(.*?)\*', r'<em>\1</em>', processed_line)
+                processed_line = re.sub(r'`(.*?)`', r'<code>\1</code>', processed_line)
+                formatted_lines.append(f'<p>{processed_line}</p>')
+        
+        return ''.join(formatted_lines)
+
     def _apply_custom_styling(self, html_content: str, theme: str) -> str:
         """
         應用自訂 CSS 樣式到 HTML 內容

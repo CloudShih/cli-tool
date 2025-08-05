@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QLabel, QCheckBox, QGroupBox, QSplitter, QTabWidget,
     QFileDialog, QMessageBox, QProgressBar, QTextEdit,
-    QComboBox, QSlider, QFrame, QScrollArea
+    QComboBox, QSlider, QFrame, QScrollArea, QTextBrowser
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QFont, QIcon, QPixmap, QDragEnterEvent, QDropEvent
@@ -341,10 +341,15 @@ class GlowView(QWidget):
         self.progress_bar.setVisible(False)
         preview_layout.addWidget(self.progress_bar)
         
-        # 預覽區域
-        self.preview_text = ModernTextEdit()
+        # 預覽區域 - 使用 QTextBrowser 以支援完整的 HTML/CSS
+        self.preview_text = QTextBrowser()
         self.preview_text.setReadOnly(True)
         self.preview_text.setPlaceholderText("Markdown 預覽將在此顯示...")
+        # 設置字體
+        font = QFont("Microsoft YaHei", 10)
+        self.preview_text.setFont(font)
+        # 啟用連結支援
+        self.preview_text.setOpenExternalLinks(True)
         preview_layout.addWidget(self.preview_text)
         
         preview_tab.setLayout(preview_layout)
@@ -648,13 +653,40 @@ class GlowView(QWidget):
     
     def update_preview_display(self, html_content: str, raw_output: str = ""):
         """更新預覽顯示"""
+        # 增強調試日誌
+        logger.info(f"[DEBUG] View.update_preview_display called:")
+        logger.info(f"[DEBUG] - HTML content length: {len(html_content)}")
+        logger.info(f"[DEBUG] - HTML content type: {type(html_content)}")
+        logger.info(f"[DEBUG] - HTML content preview: {html_content[:300]}...")
+        logger.info(f"[DEBUG] - Contains <html> tag: {'<html>' in html_content}")
+        logger.info(f"[DEBUG] - Contains <style> tag: {'<style>' in html_content}")
+        logger.info(f"[DEBUG] - Contains <h1> tag: {'<h1' in html_content}")
+        logger.info(f"[DEBUG] - Contains <h2> tag: {'<h2' in html_content}")
+        
+        # 記錄 QTextBrowser 的當前狀態
+        logger.info(f"[DEBUG] QTextBrowser state before setHtml:")
+        logger.info(f"[DEBUG] - Widget visible: {self.preview_text.isVisible()}")
+        logger.info(f"[DEBUG] - Widget enabled: {self.preview_text.isEnabled()}")
+        logger.info(f"[DEBUG] - Widget size: {self.preview_text.size()}")
+        logger.info(f"[DEBUG] - Current document length: {len(self.preview_text.toPlainText())}")
+        
+        # 設置 HTML 內容
         self.preview_text.setHtml(html_content)
+        
+        # 記錄設置後的狀態
+        logger.info(f"[DEBUG] QTextBrowser state after setHtml:")
+        logger.info(f"[DEBUG] - Document length: {len(self.preview_text.toPlainText())}")
+        logger.info(f"[DEBUG] - Document HTML length: {len(self.preview_text.toHtml())}")
+        logger.info(f"[DEBUG] - Document content preview: {self.preview_text.toPlainText()[:200]}...")
+        
         if raw_output:
             self.raw_output_text.setPlainText(raw_output)
         
         # 保存內容用於導出
         self._last_html_content = html_content
         self.export_btn.setEnabled(True)
+        
+        logger.info(f"[DEBUG] View.update_preview_display completed")
     
     def update_cache_info(self, cache_info: Dict):
         """更新快取信息顯示"""

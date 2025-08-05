@@ -75,6 +75,15 @@ class RenderWorker(QThread):
                     logger.warning(f"Failed to get raw output: {e}")
                     raw_output = "無法獲取原始輸出"
             
+            # 調試信號發送前的數據
+            logger.info(f"[DEBUG] RenderWorker about to emit signal:")
+            logger.info(f"[DEBUG] - Success: {success}")
+            logger.info(f"[DEBUG] - HTML length: {len(html_content)}")
+            logger.info(f"[DEBUG] - HTML type: {type(html_content)}")
+            logger.info(f"[DEBUG] - HTML preview: {html_content[:200]}...")
+            logger.info(f"[DEBUG] - HTML contains <html>: {'<html>' in html_content}")
+            logger.info(f"[DEBUG] - HTML contains <h1>: {'<h1' in html_content}")
+            
             # 發送完成信號
             self.render_finished.emit(success, html_content, raw_output, error_message)
             
@@ -199,24 +208,38 @@ class GlowController(QObject):
     def _on_render_finished(self, success: bool, html_content: str, raw_output: str, error_message: str):
         """渲染完成處理"""
         try:
+            # 增強調試日誌
+            logger.info(f"[DEBUG] Controller received signal:")
+            logger.info(f"[DEBUG] - Success: {success}")
+            logger.info(f"[DEBUG] - HTML content length: {len(html_content)}")
+            logger.info(f"[DEBUG] - HTML content type: {type(html_content)}")
+            logger.info(f"[DEBUG] - HTML content preview: {html_content[:200]}...")
+            logger.info(f"[DEBUG] - HTML contains <html>: {'<html>' in html_content}")
+            logger.info(f"[DEBUG] - HTML contains <h1>: {'<h1' in html_content}")
+            logger.info(f"[DEBUG] - HTML contains <h2>: {'<h2' in html_content}")
+            logger.info(f"[DEBUG] - Error message: {error_message}")
+            
             # 更新 UI 狀態
             self.view.show_render_progress(False)
             
             if success:
+                # 調試：記錄即將傳送到 View 的數據
+                logger.info(f"[DEBUG] About to call view.update_preview_display with HTML length: {len(html_content)}")
+                
                 # 更新預覽顯示
                 self.view.update_preview_display(html_content, raw_output)
                 self.view.update_status("success", "Markdown 渲染完成")
                 
-                logger.info("Render completed successfully")
+                logger.info("[DEBUG] Render completed successfully")
             else:
                 # 顯示錯誤
                 self.view.update_status("error", "渲染失敗")
                 self._show_error_message("渲染失敗", f"無法渲染 Markdown 內容:\n{error_message}")
                 
-                logger.error(f"Render failed: {error_message}")
+                logger.error(f"[DEBUG] Render failed: {error_message}")
             
         except Exception as e:
-            logger.error(f"Error handling render completion: {e}")
+            logger.error(f"[DEBUG] Error handling render completion: {e}")
             self.view.update_status("error", f"處理渲染結果時發生錯誤: {str(e)}")
     
     def _handle_check_glow_request(self):
