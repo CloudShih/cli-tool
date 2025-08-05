@@ -83,6 +83,13 @@ class WelcomePage(QWidget):
         )
         features_layout.addWidget(poppler_card)
         
+        # Bat 工具卡片
+        bat_card = self.create_feature_card(
+            "🌈", "語法高亮查看器", 
+            "使用 bat 工具提供語法高亮的文件查看功能，支援多種程式語言和主題樣式。"
+        )
+        features_layout.addWidget(bat_card)
+        
         # 主題設定卡片
         theme_card = self.create_feature_card(
             "🎨", "主題設定", 
@@ -259,6 +266,12 @@ class NavigationSidebar(QFrame):
                     icon = "🔍"
                 elif plugin_name == "poppler":
                     icon = "📄"
+                elif plugin_name == "glow":
+                    icon = "📖"
+                elif plugin_name == "pandoc":
+                    icon = "🔄"
+                elif plugin_name == "bat":
+                    icon = "🌈"
                 
                 button = ModernButton(f"{icon} {plugin.name.title()}")
                 button.setProperty("sidebar-nav", True)
@@ -592,12 +605,25 @@ class ModernMainWindow(QMainWindow):
                 "welcome": "歡迎頁面",
                 "fd": "檔案搜尋",
                 "poppler": "PDF 處理",
+                "glow": "Markdown 閱讀器",
+                "pandoc": "文檔轉換",
+                "bat": "語法高亮查看器",
                 "themes": "主題設定",
                 "components": "UI 組件"
             }
             
             page_name = page_names.get(key, key.title())
-            icon = "🏠" if key == "welcome" else "🔍" if key == "fd" else "📄" if key == "poppler" else "🎨" if key == "themes" else "🧩" if key == "components" else "🔧"
+            icon_map = {
+                "welcome": "🏠",
+                "fd": "🔍", 
+                "poppler": "📄",
+                "glow": "📖",
+                "pandoc": "🔄",
+                "bat": "🌈",
+                "themes": "🎨",
+                "components": "🧩"
+            }
+            icon = icon_map.get(key, "🔧")
             
             if self.toast_manager:
                 self.toast_manager.show_progress_toast(
@@ -688,7 +714,10 @@ class ModernMainWindow(QMainWindow):
             "整合多種命令列工具的現代化圖形界面\n\n"
             "支援的工具:\n"
             "• fd - 快速檔案搜尋\n"
-            "• Poppler - PDF 處理工具集\n\n"
+            "• Glow - Markdown 文檔預覽\n"
+            "• Pandoc - 萬能文檔轉換器\n"
+            "• Poppler - PDF 處理工具集\n"
+            "• bat - 語法高亮查看器\n\n"
             "© 2024 CLI Tool Integration"
         )
     

@@ -40,6 +40,18 @@
       "recent_files": [
         "D:/ClaudeCode/projects/cli_tool/CHANGELOG.md"
       ]
+    },
+    "bat": {
+      "executable_path": "bat",
+      "default_theme": "Monokai Extended",
+      "show_line_numbers": true,
+      "show_git_modifications": true,
+      "tab_width": 4,
+      "wrap_text": false,
+      "use_cache": true,
+      "cache_ttl": 1800,
+      "max_cache_size": 52428800,
+      "recent_files": []
     }
   },
   "ui": {
