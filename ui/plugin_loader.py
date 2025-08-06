@@ -353,6 +353,7 @@ class PluginLoadingDialog(QWidget):
                 ("glow", "美觀的 Markdown 文檔閱讀器"),
                 ("pandoc", "萬能文檔轉換器，支援 50+ 種格式"),
                 ("poppler", "PDF 處理工具集"),
+                ("bat", "語法高亮查看器，支援多種程式語言"),
             ]
             
             for plugin_name, description in plugin_info:

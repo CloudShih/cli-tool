@@ -5,7 +5,7 @@
 
 import logging
 from PyQt5.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
+    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QSplitter,
     QStackedWidget, QFrame, QLabel, QScrollArea, QSizePolicy,
     QStatusBar, QAction, QMenuBar, QMenu, QMessageBox, QApplication
 )
@@ -49,55 +49,45 @@ class WelcomePage(QWidget):
         subtitle_label.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(subtitle_label)
         
-        main_layout.addSpacing(40)
+        main_layout.addSpacing(30)
         
-        # 功能介紹卡片
-        features_layout = QHBoxLayout()
-        features_layout.setSpacing(20)
+        # 功能介紹卡片 - 使用網格佈局進行分行排列
+        features_container = QWidget()
+        features_grid = QGridLayout()
+        features_grid.setSpacing(25)
+        features_grid.setContentsMargins(40, 0, 40, 0)
         
-        # fd 工具卡片
-        fd_card = self.create_feature_card(
-            "🔍", "檔案搜尋", 
-            "使用 fd 工具快速搜尋檔案和目錄，支援正則表達式和各種篩選選項。"
-        )
-        features_layout.addWidget(fd_card)
+        # 創建所有工具卡片
+        cards = [
+            # 第一行：核心工具
+            ("🔍", "檔案搜尋", "使用 fd 工具快速搜尋檔案和目錄，支援正則表達式和各種篩選選項。"),
+            ("📖", "Markdown 閱讀器", "使用 Glow 工具美觀地預覽 Markdown 文檔，支援本地檔案和遠程 URL，提供多種主題樣式。"),
+            ("🔄", "文檔轉換", "使用 Pandoc 萬能轉換器，支援 Markdown、HTML、DOCX 等多種格式互轉，可輸出為 PDF。"),
+            # 第二行：處理工具
+            ("📄", "PDF 處理", "使用 Poppler 工具集處理 PDF 文件，包括轉換、分割、合併等功能。"),
+            ("🌈", "語法高亮查看器", "使用 bat 工具提供語法高亮的文件查看功能，支援多種程式語言和主題樣式。"),
+            ("🎨", "主題設定", "豐富的主題選擇，支援深色、淺色和系統主題自動切換。"),
+        ]
         
-        # Glow 工具卡片
-        glow_card = self.create_feature_card(
-            "📖", "Markdown 閱讀器", 
-            "使用 Glow 工具美觀地預覽 Markdown 文檔，支援本地檔案和遠程 URL，提供多種主題樣式。"
-        )
-        features_layout.addWidget(glow_card)
+        # 按照 3x2 網格排列卡片
+        for i, (icon, title, description) in enumerate(cards):
+            row = i // 3  # 每行 3 個卡片
+            col = i % 3   # 列位置
+            
+            card = self.create_feature_card(icon, title, description)
+            features_grid.addWidget(card, row, col)
         
-        # Pandoc 工具卡片
-        pandoc_card = self.create_feature_card(
-            "🔄", "文檔轉換", 
-            "使用 Pandoc 萬能轉換器，支援 Markdown、HTML、DOCX 等多種格式互轉，可輸出為 PDF。注意：不支援從 PDF 作為輸入格式。"
-        )
-        features_layout.addWidget(pandoc_card)
+        # 設置列拉伸，使卡片在水平方向均匀分布
+        for col in range(3):
+            features_grid.setColumnStretch(col, 1)
         
-        # Poppler 工具卡片
-        poppler_card = self.create_feature_card(
-            "📄", "PDF 處理", 
-            "使用 Poppler 工具集處理 PDF 文件，包括轉換、分割、合併等功能。"
-        )
-        features_layout.addWidget(poppler_card)
+        # 設置行間距 - 適應更大的卡片尺寸
+        features_grid.setRowMinimumHeight(0, 240)
+        features_grid.setRowMinimumHeight(1, 240)
+        features_grid.setVerticalSpacing(40)
         
-        # Bat 工具卡片
-        bat_card = self.create_feature_card(
-            "🌈", "語法高亮查看器", 
-            "使用 bat 工具提供語法高亮的文件查看功能，支援多種程式語言和主題樣式。"
-        )
-        features_layout.addWidget(bat_card)
-        
-        # 主題設定卡片
-        theme_card = self.create_feature_card(
-            "🎨", "主題設定", 
-            "豐富的主題選擇，支援深色、淺色和系統主題自動切換。"
-        )
-        features_layout.addWidget(theme_card)
-        
-        main_layout.addLayout(features_layout)
+        features_container.setLayout(features_grid)
+        main_layout.addWidget(features_container)
         
         main_layout.addStretch()
         
@@ -114,7 +104,7 @@ class WelcomePage(QWidget):
         card = QFrame()
         card.setProperty("feature-card", True)
         card.setFrameStyle(QFrame.StyledPanel)
-        card.setFixedSize(250, 180)
+        card.setFixedSize(320, 220)
         
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
