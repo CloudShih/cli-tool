@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A PyQt5-based GUI application that integrates multiple CLI tools into a unified interface. The application follows an MVC architecture pattern with separate tools for file search (`fd`) and PDF manipulation (`poppler` utilities).
+A PyQt5-based GUI application that integrates multiple CLI tools into a unified interface. The application follows an MVC architecture pattern with tools for file search (`fd`), text search (`ripgrep`), markdown viewing (`glow`), document conversion (`pandoc`), PDF manipulation (`poppler`), and syntax highlighting (`bat`).
 
 ## Architecture
 
@@ -12,7 +12,11 @@ A PyQt5-based GUI application that integrates multiple CLI tools into a unified 
 - **Main Application**: `main_app.py` - Entry point with tabbed interface and dark theme
 - **Tools System**: Modular MVC pattern in `tools/` directory
   - `tools/fd/` - File search tool wrapper for the `fd` command-line utility
+  - `tools/ripgrep/` - Text search tool with advanced pattern matching using ripgrep
+  - `tools/glow/` - Markdown viewer with theme support using glow
+  - `tools/pandoc/` - Universal document converter using pandoc
   - `tools/poppler/` - PDF manipulation tools using Poppler utilities and QPDF
+  - `tools/bat/` - Syntax highlighting file viewer using bat
 - **Utilities**: `pdf_decryptor.py` - Standalone PDF decryption utility using pikepdf
 
 ### MVC Pattern Implementation
@@ -71,6 +75,11 @@ The application wraps these external command-line tools:
 - Path configured in `FdModel`: `C:\Users\cloudchshih\AppData\Local\Microsoft\WinGet\Packages\sharkdp.fd_Microsoft.WinGet.Source_8wekyb3d8bbwe\fd-v10.2.0-x86_64-pc-windows-msvc\fd.exe`
 - Used for fast file and directory searching
 
+**ripgrep (rg) Tool**:
+- Expected in system PATH or configurable path
+- Ultra-fast text search with regex support and multiple output formats
+- Unicode-aware with proper UTF-8 encoding handling
+
 **Poppler Utils**: Expected in system PATH
 - `pdfinfo` - PDF metadata extraction
 - `pdftotext` - PDF to text conversion
@@ -83,14 +92,33 @@ The application wraps these external command-line tools:
 **QPDF**: Used for PDF decryption
 - `qpdf` - Advanced PDF manipulation
 
+**Glow**: Expected in system PATH
+- `glow` - Terminal markdown reader with styling
+
+**Pandoc**: Expected in system PATH  
+- `pandoc` - Universal document converter
+
+**Bat**: Expected in system PATH
+- `bat` - Syntax highlighting file viewer
+
 ## Architecture Patterns
 
 ### Command Execution Pattern
 All external tool integrations follow this pattern:
 1. Build command array with proper arguments
-2. Execute via `subprocess.Popen` with UTF-8 encoding
+2. Execute via `subprocess.Popen` with explicit UTF-8 encoding and error handling
 3. Convert output to HTML using `ansi2html` for GUI display
 4. Handle errors gracefully with user-friendly messages
+
+**Critical Encoding Configuration**:
+```python
+subprocess.Popen(command, 
+    encoding='utf-8',      # Force UTF-8 encoding
+    errors='replace',      # Handle encoding errors gracefully
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE
+)
+```
 
 ### GUI State Management
 - Button state changes during operations (disabled with "wait..." text)

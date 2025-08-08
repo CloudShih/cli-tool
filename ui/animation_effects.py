@@ -47,12 +47,31 @@ class AnimationManager:
             self.active_animations[name].stop()
         
         # 應用速度倍數
-        original_duration = animation.duration()
-        new_duration = int(original_duration / self.global_speed_factor)
-        animation.setDuration(new_duration)
+        self._apply_speed_factor(animation)
         
         self.active_animations[name] = animation
         animation.finished.connect(lambda: self._on_animation_finished(name))
+    
+    def _apply_speed_factor(self, animation: QAbstractAnimation):
+        """應用速度倍數到動畫"""
+        try:
+            from PyQt5.QtCore import QSequentialAnimationGroup, QParallelAnimationGroup
+            
+            if isinstance(animation, (QSequentialAnimationGroup, QParallelAnimationGroup)):
+                # 對於動畫組，遞歸應用到每個子動畫
+                for i in range(animation.animationCount()):
+                    child_animation = animation.animationAt(i)
+                    if child_animation:
+                        self._apply_speed_factor(child_animation)
+            else:
+                # 對於單個動畫，直接設置持續時間
+                if hasattr(animation, 'setDuration') and hasattr(animation, 'duration'):
+                    original_duration = animation.duration()
+                    new_duration = int(original_duration / self.global_speed_factor)
+                    animation.setDuration(new_duration)
+        except Exception as e:
+            logger.warning(f"Failed to apply speed factor to animation: {e}")
+            # 忽略錯誤，繼續執行
     
     def start_animation(self, name: str):
         """啟動動畫"""

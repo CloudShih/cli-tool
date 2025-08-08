@@ -354,6 +354,7 @@ class PluginLoadingDialog(QWidget):
                 ("pandoc", "萬能文檔轉換器，支援 50+ 種格式"),
                 ("poppler", "PDF 處理工具集"),
                 ("bat", "語法高亮查看器，支援多種程式語言"),
+                ("ripgrep", "超快文本搜尋工具，支援正則表達式"),
             ]
             
             for plugin_name, description in plugin_info:

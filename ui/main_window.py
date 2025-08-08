@@ -34,42 +34,59 @@ class WelcomePage(QWidget):
     def setup_ui(self):
         """設置歡迎頁面 UI"""
         main_layout = QVBoxLayout()
-        main_layout.setAlignment(Qt.AlignCenter)
-        main_layout.setSpacing(30)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # 創建滾動區域
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setFrameStyle(QFrame.NoFrame)
+        scroll_area.setProperty("welcome-scroll", True)
+        
+        # 滾動內容容器
+        content_widget = QWidget()
+        content_layout = QVBoxLayout()
+        content_layout.setAlignment(Qt.AlignTop)
+        content_layout.setSpacing(30)
+        content_layout.setContentsMargins(20, 20, 20, 20)
         
         # 標題區域
         title_label = QLabel("CLI Tool Integration")
         title_label.setProperty("welcome-title", True)
         title_label.setAlignment(Qt.AlignCenter)
-        main_layout.addWidget(title_label)
+        content_layout.addWidget(title_label)
         
         # 副標題
         subtitle_label = QLabel("整合多種命令列工具的現代化圖形界面")
         subtitle_label.setProperty("welcome-subtitle", True)
         subtitle_label.setAlignment(Qt.AlignCenter)
-        main_layout.addWidget(subtitle_label)
+        content_layout.addWidget(subtitle_label)
         
-        main_layout.addSpacing(30)
+        content_layout.addSpacing(20)
         
         # 功能介紹卡片 - 使用網格佈局進行分行排列
         features_container = QWidget()
         features_grid = QGridLayout()
-        features_grid.setSpacing(25)
-        features_grid.setContentsMargins(40, 0, 40, 0)
+        features_grid.setSpacing(20)
+        features_grid.setContentsMargins(20, 0, 20, 0)
         
         # 創建所有工具卡片
         cards = [
             # 第一行：核心工具
             ("🔍", "檔案搜尋", "使用 fd 工具快速搜尋檔案和目錄，支援正則表達式和各種篩選選項。"),
+            ("🔎", "文本搜尋", "使用 Ripgrep 進行高效能文本內容搜尋，支援正則表達式和多種檔案格式。"),
             ("📖", "Markdown 閱讀器", "使用 Glow 工具美觀地預覽 Markdown 文檔，支援本地檔案和遠程 URL，提供多種主題樣式。"),
+            # 第二行：轉換工具
             ("🔄", "文檔轉換", "使用 Pandoc 萬能轉換器，支援 Markdown、HTML、DOCX 等多種格式互轉，可輸出為 PDF。"),
-            # 第二行：處理工具
             ("📄", "PDF 處理", "使用 Poppler 工具集處理 PDF 文件，包括轉換、分割、合併等功能。"),
             ("🌈", "語法高亮查看器", "使用 bat 工具提供語法高亮的文件查看功能，支援多種程式語言和主題樣式。"),
+            # 第三行：系統設定
             ("🎨", "主題設定", "豐富的主題選擇，支援深色、淺色和系統主題自動切換。"),
         ]
         
-        # 按照 3x2 網格排列卡片
+        # 按照 3x3 網格排列卡片，增加更好的間距
         for i, (icon, title, description) in enumerate(cards):
             row = i // 3  # 每行 3 個卡片
             col = i % 3   # 列位置
@@ -77,25 +94,38 @@ class WelcomePage(QWidget):
             card = self.create_feature_card(icon, title, description)
             features_grid.addWidget(card, row, col)
         
-        # 設置列拉伸，使卡片在水平方向均匀分布
+        # 設置列拉伸，使卡片在水平方向均勻分布
         for col in range(3):
             features_grid.setColumnStretch(col, 1)
         
-        # 設置行間距 - 適應更大的卡片尺寸
-        features_grid.setRowMinimumHeight(0, 240)
-        features_grid.setRowMinimumHeight(1, 240)
-        features_grid.setVerticalSpacing(40)
+        # 動態設置行間距 - 根據卡片數量適應
+        total_rows = (len(cards) + 2) // 3  # 計算總行數
+        for row in range(total_rows):
+            features_grid.setRowMinimumHeight(row, 180)  # 調整為配合新卡片尺寸
+        
+        features_grid.setVerticalSpacing(25)
+        features_grid.setHorizontalSpacing(20)
         
         features_container.setLayout(features_grid)
-        main_layout.addWidget(features_container)
+        content_layout.addWidget(features_container)
         
-        main_layout.addStretch()
+        content_layout.addSpacing(20)
         
         # 底部信息
         info_label = QLabel("請從左側導航選擇要使用的工具")
         info_label.setProperty("welcome-info", True)
         info_label.setAlignment(Qt.AlignCenter)
-        main_layout.addWidget(info_label)
+        content_layout.addWidget(info_label)
+        
+        # 添加底部間距
+        content_layout.addSpacing(20)
+        
+        # 設置內容容器
+        content_widget.setLayout(content_layout)
+        scroll_area.setWidget(content_widget)
+        
+        # 將滾動區域添加到主佈局
+        main_layout.addWidget(scroll_area)
         
         self.setLayout(main_layout)
     
@@ -104,7 +134,7 @@ class WelcomePage(QWidget):
         card = QFrame()
         card.setProperty("feature-card", True)
         card.setFrameStyle(QFrame.StyledPanel)
-        card.setFixedSize(320, 220)
+        card.setFixedSize(300, 180)  # 減小卡片尺寸以適應滾動佈局
         
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
@@ -254,6 +284,8 @@ class NavigationSidebar(QFrame):
                 icon = "🔧"  # 預設圖標
                 if plugin_name == "fd":
                     icon = "🔍"
+                elif plugin_name == "ripgrep":
+                    icon = "🔎"
                 elif plugin_name == "poppler":
                     icon = "📄"
                 elif plugin_name == "glow":
