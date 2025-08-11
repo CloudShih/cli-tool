@@ -195,12 +195,13 @@ class DustResultsWidget(QWidget):
     def _parse_dust_line(self, line: str):
         """解析 dust 輸出的單行"""
         try:
-            print(f"PARSE: Input line: '{line}'")
+            # 處理編碼問題已解決，移除調試輸出
+            # print(f"PARSE: Input line: '{line}'")
             
             # 首先移除 ANSI 色碼
             ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
             clean_line = ansi_escape.sub('', line)
-            print(f"PARSE: After ANSI removal: '{clean_line}'")
+            # print(f"PARSE: After ANSI removal: '{clean_line}'")
             
             # dust 輸出格式分析：
             # 原始 Unicode 格式（保持原有，但不在代碼中使用）：
@@ -218,7 +219,7 @@ class DustResultsWidget(QWidget):
             
             size = size_match.group(1)
             remaining = clean_line[size_match.end():]
-            print(f"PARSE: Size: '{size}', Remaining: '{remaining}'")
+            # print(f"PARSE: Size: '{size}', Remaining: '{remaining}'")
             
             # 分析樹狀結構和檔案名
             # dust 輸出格式：[tree_chars] [filename] [spaces] │ [progress_bar] │ [percentage]
@@ -229,10 +230,9 @@ class DustResultsWidget(QWidget):
             if content_match:
                 tree_chars = content_match.group(1) or ""
                 filename = content_match.group(2) or ""
-                # 清理檔案名中可能殘留的樹狀符號
-                filename = re.sub(r'^[├└│┌─┴\s]+', '', filename).strip()
+                # 正則表達式已經正確分離，無需額外清理
                 
-                print(f"PARSE: Tree chars: '{tree_chars}', Filename: '{filename}'")
+                # print(f"PARSE: Tree chars: '{tree_chars}', Filename: '{filename}'")
                 
                 # 計算縮排層級 - 基於樹狀結構的深度
                 indent_level = self._calculate_indent_level(tree_chars)
@@ -248,7 +248,7 @@ class DustResultsWidget(QWidget):
                     'original_line': line
                 }
             else:
-                print(f"PARSE: Failed to match tree pattern for: '{remaining}'")
+                # print(f"PARSE: Failed to match tree pattern for: '{remaining}'")
                 # 如果解析失敗，嘗試直接使用剩餘部分作為檔案名
                 filename = remaining.strip()
                 if filename:
@@ -261,8 +261,8 @@ class DustResultsWidget(QWidget):
                     }
             
         except Exception as e:
-            print(f"PARSE: Exception parsing line: {line}, error: {e}")
-            logger.debug(f"Failed to parse line: {line}, error: {e}")
+            # 僅記錄到日誌，避免控制台編碼錯誤
+            logger.debug(f"Failed to parse line: [encoding handled], error: {e}")
         
         return None
     
