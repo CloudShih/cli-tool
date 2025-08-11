@@ -110,7 +110,7 @@ class PluginManager:
         self._initialized = True
         logger.info(f"Plugin Manager initialized with {len(self.plugins)} plugins")
     
-    def discover_plugins(self):
+    def discover_plugins(self) -> List[str]:
         """自動發現可用的插件"""
         logger.info("Discovering plugins...")
         
@@ -125,6 +125,9 @@ class PluginManager:
             plugin_path = Path(path)
             if plugin_path.exists():
                 self._discover_plugins_in_directory(plugin_path)
+        
+        # 返回已發現的插件名稱列表
+        return list(self.plugins.keys())
     
     def _discover_plugins_in_directory(self, directory: Path):
         """在指定目錄中發現插件"""

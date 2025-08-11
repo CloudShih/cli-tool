@@ -203,6 +203,10 @@ class ConfigManager:
     def get_general_config(self) -> Dict[str, Any]:
         """獲取一般配置"""
         return self.get("general", {})
+    
+    def get_config(self) -> Dict[str, Any]:
+        """獲取完整配置字典"""
+        return self._config.copy()
 
 
 # 全域配置管理器實例

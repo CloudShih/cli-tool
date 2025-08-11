@@ -52,6 +52,19 @@
       "cache_ttl": 1800,
       "max_cache_size": 52428800,
       "recent_files": []
+    },
+    "dust": {
+      "executable_path": "dust",
+      "default_depth": 3,
+      "default_limit": 30,
+      "show_full_paths": false,
+      "files_only": false,
+      "apparent_size": true,
+      "output_format": "terminal",
+      "color_scheme": "auto",
+      "use_cache": true,
+      "cache_ttl": 1800,
+      "recent_directories": []
     }
   },
   "ui": {
@@ -61,8 +74,8 @@
     "window": {
       "width": 1241,
       "height": 900,
-      "x": 638,
-      "y": 118
+      "x": 496,
+      "y": 91
     },
     "remember_window_state": true,
     "show_tooltips": true
