@@ -223,18 +223,37 @@ class DustResultsWidget(QWidget):
             
             # 分析樹狀結構和檔案名
             # dust 輸出格式：[tree_chars] [filename] [spaces] │ [progress_bar] │ [percentage]
-            # 需要精確解析以避免包含進度條字符
-            tree_pattern = r'^([├└│┌─┴\s]*)\s*([^\s│]+(?:\s+[^\s│]+)*?)\s*│'
-            content_match = re.match(tree_pattern, remaining)
-            
-            if content_match:
-                tree_chars = content_match.group(1) or ""
-                filename = content_match.group(2) or ""
-                # 正則表達式已經正確分離，無需額外清理
+            # 使用更簡單直接的解析方法
+            pipe_pos = remaining.find('│')
+            if pipe_pos > 0:
+                before_pipe = remaining[:pipe_pos].rstrip()  # 移除右邊空格
                 
-                # print(f"PARSE: Tree chars: '{tree_chars}', Filename: '{filename}'")
+                # 從左到右掃描，分離樹符號和檔案名
+                tree_chars = ""
+                filename_start = 0
                 
-                # 計算縮排層級 - 基於樹狀結構的深度
+                for i, char in enumerate(before_pipe):
+                    if char in '├└│┌─┴':
+                        # 這是樹符號
+                        continue
+                    elif char == ' ':
+                        # 空格可能是樹符號的一部分或分隔符
+                        continue  
+                    else:
+                        # 找到第一個非樹符號、非空格字符，這是檔案名的開始
+                        filename_start = i
+                        break
+                
+                # 提取樹符號部分（包含開頭的符號和空格）
+                tree_chars = before_pipe[:filename_start]
+                # 提取檔案名（從第一個非符號字符開始）
+                filename = before_pipe[filename_start:].strip()
+                
+                # 添加調試標記確認修正生效
+                if filename:
+                    filename = f"[FIXED] {filename}"
+                
+                # 計算縮排層級
                 indent_level = self._calculate_indent_level(tree_chars)
                 
                 # 判斷是否為目錄
@@ -248,7 +267,7 @@ class DustResultsWidget(QWidget):
                     'original_line': line
                 }
             else:
-                # print(f"PARSE: Failed to match tree pattern for: '{remaining}'")
+                # 沒有找到 │ 分隔符，嘗試直接使用剩餘部分
                 # 如果解析失敗，嘗試直接使用剩餘部分作為檔案名
                 filename = remaining.strip()
                 if filename:
