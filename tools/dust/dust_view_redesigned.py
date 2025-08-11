@@ -21,6 +21,11 @@ import re
 
 logger = logging.getLogger(__name__)
 
+# 模組載入調試信息
+print("=" * 50)
+print("DEBUG: dust_view_redesigned.py module LOADED with LATEST CHANGES")
+print("=" * 50)
+
 
 class DustTreeWidget(QTreeWidget):
     """自定義的 dust 結果樹狀視圖"""
@@ -249,9 +254,9 @@ class DustResultsWidget(QWidget):
                 # 提取檔案名（從第一個非符號字符開始）
                 filename = before_pipe[filename_start:].strip()
                 
-                # 添加調試標記確認修正生效
+                # 添加調試標記確認修正生效 - 強化版本
                 if filename:
-                    filename = f"[FIXED] {filename}"
+                    filename = f">>CLEANED<< {filename}"
                 
                 # 計算縮排層級
                 indent_level = self._calculate_indent_level(tree_chars)
@@ -543,6 +548,7 @@ class DustViewRedesigned(QWidget):
         results_layout.setContentsMargins(8, 8, 8, 8)
         
         self.dust_results_display = DustResultsWidget()
+        print("DEBUG: DustViewRedesigned created with MODIFIED DustResultsWidget")
         results_layout.addWidget(self.dust_results_display)
         
         results_group.setLayout(results_layout)
