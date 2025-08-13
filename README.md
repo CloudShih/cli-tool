@@ -21,6 +21,14 @@
 - 支援正則表達式和檔案類型篩選
 - 隱藏檔案和大小寫敏感搜尋選項
 
+### dust - 磁碟空間分析器
+- **視覺化分析** - 直觀的目錄樹狀結構顯示
+- **智能解析** - 精確解析 dust 輸出格式，清理樹狀符號
+- **多層級檢視** - 支援目錄深度限制和層級縮排顯示
+- **檔案類型識別** - 自動識別檔案和目錄類型
+- **大小統計** - 顯示檔案和目錄的詳細大小資訊
+- **過濾功能** - 支援最小大小過濾和檔案類型篩選
+
 ### Glow - Markdown 閱讀器
 - **美觀預覽** - 精美的 Markdown 文檔渲染和顯示
 - **本地支援** - 支援本地 Markdown 檔案快速載入和預覽
@@ -44,6 +52,14 @@
 - **主題支援** - 40+ 種內建主題，支援自訂主題配置
 - **分頁顯示** - 整合 less 分頁器，適合查看大型檔案
 - **快取機制** - 快速檔案載入和語法解析快取系統
+
+### Ripgrep - 高速文本搜尋
+- **極速搜尋** - 比 grep 快數倍的正則表達式搜尋
+- **智能篩選** - 自動忽略 .gitignore 和二進位檔案
+- **多格式輸出** - 支援普通、JSON、統計等多種輸出格式
+- **檔案類型** - 支援指定檔案類型和自訂模式
+- **上下文顯示** - 顯示搜尋結果的前後文內容
+- **Unicode 支援** - 完整的 Unicode 和多語言支援
 
 ### Poppler Tools - PDF 處理工具集
 - **PDF 資訊** - 查看 PDF 文件詳細資訊
@@ -71,6 +87,12 @@
 - Windows: 可通過 WinGet 安裝 `winget install sharkdp.fd`
 - 或從 [fd releases](https://github.com/sharkdp/fd/releases) 下載
 
+**dust 工具（推薦）**:
+- Windows: `winget install dust3d.dust3d` 或從 [dust releases](https://github.com/bootandy/dust/releases) 下載
+- macOS: `brew install dust`
+- Linux: `cargo install du-dust` 或下載二進位檔
+- 驗證安裝: `dust --version`
+
 **Glow 工具（推薦）**:
 - Windows: 從 [Glow Releases](https://github.com/charmbracelet/glow/releases) 下載
 - macOS: `brew install glow`
@@ -82,6 +104,12 @@
 - macOS: `brew install bat`
 - Linux: `apt-get install bat`
 - 驗證安裝: `bat --version`
+
+**Ripgrep 工具（推薦）**:
+- Windows: `winget install BurntSushi.ripgrep.MSVC` 或從 [ripgrep releases](https://github.com/BurntSushi/ripgrep/releases) 下載
+- macOS: `brew install ripgrep`
+- Linux: `apt-get install ripgrep`
+- 驗證安裝: `rg --version`
 
 **Poppler 工具（可選）**:
 - Windows: 從 [Poppler Windows](https://blog.alivate.com.au/poppler-windows/) 下載
@@ -258,19 +286,31 @@ pytest --cov=. tests/
 - 確認 PyQt5 正確安裝
 - 檢查是否缺少系統級的 GUI 依賴
 
-## 🎨 最新更新 (v2.1.2)
-
-### UI 優化
-- **響應式佈局改進** - 首頁工具卡片改為 3x2 網格排列，解決擁擠問題
-- **卡片尺寸優化** - 工具卡片從 250x180 調整為 320x220，提升內容可讀性
-- **載入對話框修復** - 修正工具總數顯示錯誤，現正確顯示 5 個工具
-- **間距優化** - 調整卡片間距和行高，提供更舒適的視覺體驗
+## 🎨 最新更新 (v2.3.0)
 
 ### 新增功能
-- **bat 工具整合** - 新增語法高亮查看器，支援 200+ 種程式語言
-- **Glow 工具整合** - 美觀的 Markdown 閱讀器，支援多種主題
-- **動畫系統** - 流暢的頁面切換和載入動畫效果
-- **主題系統** - 支援深色、淺色和系統主題自動切換
+- **dust 磁碟空間分析器** - 全新整合的磁碟空間分析工具
+  - 視覺化目錄樹狀結構顯示
+  - 智能解析 dust 輸出格式，清理樹狀符號
+  - 支援多層級檢視和檔案類型識別
+- **Ripgrep 文本搜尋** - 高速正則表達式搜尋引擎
+  - 極速搜尋性能，比傳統 grep 快數倍
+  - 智能篩選和多格式輸出支援
+  - 完整的 Unicode 和多語言支援
+
+### UI 優化
+- **dust 工具界面** - 現代化的磁碟分析界面設計
+  - 雙檢視模式：樹狀檢視和原始輸出
+  - 即時進度回饋和智能超時機制
+  - 豐富的過濾和排序選項
+- **Ripgrep 界面** - 專業的文本搜尋界面
+  - 多種輸出格式選擇和實時搜尋預覽
+  - 進階搜尋選項和檔案類型篩選
+
+### 技術改進
+- **插件架構優化** - 改善插件載入和管理機制
+- **分支符號處理** - 完善的 Unicode 樹狀符號解析和清理
+- **編碼支援** - 強化的 UTF-8 編碼處理和多語言支援
 
 ## 📝 開發日誌
 

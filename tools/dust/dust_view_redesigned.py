@@ -21,11 +21,6 @@ import re
 
 logger = logging.getLogger(__name__)
 
-# 模組載入調試信息
-print("=" * 50)
-print("DEBUG: dust_view_redesigned.py module LOADED with LATEST CHANGES")
-print("=" * 50)
-
 
 class DustTreeWidget(QTreeWidget):
     """自定義的 dust 結果樹狀視圖"""
@@ -200,95 +195,59 @@ class DustResultsWidget(QWidget):
     def _parse_dust_line(self, line: str):
         """解析 dust 輸出的單行"""
         try:
-            # 處理編碼問題已解決，移除調試輸出
-            # print(f"PARSE: Input line: '{line}'")
-            
-            # 首先移除 ANSI 色碼
+            # 移除 ANSI 色碼
             ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
             clean_line = ansi_escape.sub('', line)
-            # print(f"PARSE: After ANSI removal: '{clean_line}'")
             
-            # dust 輸出格式分析：
-            # 原始 Unicode 格式（保持原有，但不在代碼中使用）：
-            # 180K   ├── tests
-            # 429K   │ ├── favicon
-            # 429K   ├─┴ static
-            # 445K   ├── ui
-            # 1.1M   │ ├── objects
-            # 1.2M   └── .git
+            # dust 輸出格式：
+            # 661M └─┬ KAJ2
+            # 452M   ├─┬ ai_management
+            # 452M   │ └─┬ static
+            # 452M   │   └── docs
             
-            # 提取大小 - 大小通常在開頭，後跟一些空格
+            # 提取大小
             size_match = re.match(r'^\s*(\d+(?:\.\d+)?[KMGTPE]?[Bb]?)\s+', clean_line)
             if not size_match:
                 return None
             
             size = size_match.group(1)
             remaining = clean_line[size_match.end():]
-            # print(f"PARSE: Size: '{size}', Remaining: '{remaining}'")
             
-            # 分析樹狀結構和檔案名
-            # dust 輸出格式：[tree_chars] [filename] [spaces] │ [progress_bar] │ [percentage]
-            # 使用更簡單直接的解析方法
-            pipe_pos = remaining.find('│')
-            if pipe_pos > 0:
-                before_pipe = remaining[:pipe_pos].rstrip()  # 移除右邊空格
-                
-                # 從左到右掃描，分離樹符號和檔案名
-                tree_chars = ""
-                filename_start = 0
-                
-                for i, char in enumerate(before_pipe):
-                    if char in '├└│┌─┴':
-                        # 這是樹符號
-                        continue
-                    elif char == ' ':
-                        # 空格可能是樹符號的一部分或分隔符
-                        continue  
-                    else:
-                        # 找到第一個非樹符號、非空格字符，這是檔案名的開始
-                        filename_start = i
-                        break
-                
-                # 提取樹符號部分（包含開頭的符號和空格）
-                tree_chars = before_pipe[:filename_start]
-                # 提取檔案名（從第一個非符號字符開始）
-                filename = before_pipe[filename_start:].strip()
-                
-                # 添加調試標記確認修正生效 - 強化版本
-                if filename:
-                    filename = f">>CLEANED<< {filename}"
-                
-                # 計算縮排層級
-                indent_level = self._calculate_indent_level(tree_chars)
-                
-                # 判斷是否為目錄
-                is_directory = self._is_directory(filename)
-                
-                return {
-                    'size': size,
-                    'filename': filename,
-                    'indent_level': indent_level,
-                    'is_directory': is_directory,
-                    'original_line': line
-                }
-            else:
-                # 沒有找到 │ 分隔符，嘗試直接使用剩餘部分
-                # 如果解析失敗，嘗試直接使用剩餘部分作為檔案名
-                filename = remaining.strip()
-                if filename:
-                    return {
-                        'size': size,
-                        'filename': filename,
-                        'indent_level': 0,
-                        'is_directory': True,
-                        'original_line': line
-                    }
+            # 解析樹符號和檔案名
+            tree_pattern = r'^([├└│┌─┴\s]*)\s*(.+?)$'
+            match = re.match(tree_pattern, remaining)
+            
+            if not match:
+                return None
+            
+            tree_chars = match.group(1)
+            filename = match.group(2).strip()
+            
+            # 清理檔案名，移除可能的樹符號
+            filename_cleaned = re.sub(r'^[├└│┌─┴\s]+', '', filename).strip()
+            
+            if not filename_cleaned:
+                return None
+            
+            # 計算縮排層級
+            spaces_before_tree = len(tree_chars) - len(tree_chars.lstrip(' '))
+            pipe_count = tree_chars.count('│')
+            indent_level = max(pipe_count, spaces_before_tree // 2)
+            
+            # 判斷檔案類型
+            is_directory = self._is_directory(filename_cleaned)
+            
+            return {
+                'size': size,
+                'filename': filename_cleaned,
+                'indent_level': indent_level,
+                'is_directory': is_directory,
+                'original_line': line
+            }
             
         except Exception as e:
-            # 僅記錄到日誌，避免控制台編碼錯誤
-            logger.debug(f"Failed to parse line: [encoding handled], error: {e}")
-        
-        return None
+            logger.debug(f"Failed to parse line: {line}, error: {e}")
+            return None
     
     def _calculate_indent_level(self, tree_chars: str) -> int:
         """計算縮排層級基於樹狀字符"""
@@ -548,7 +507,6 @@ class DustViewRedesigned(QWidget):
         results_layout.setContentsMargins(8, 8, 8, 8)
         
         self.dust_results_display = DustResultsWidget()
-        print("DEBUG: DustViewRedesigned created with MODIFIED DustResultsWidget")
         results_layout.addWidget(self.dust_results_display)
         
         results_group.setLayout(results_layout)
