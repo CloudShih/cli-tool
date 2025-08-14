@@ -61,6 +61,15 @@
 - **上下文顯示** - 顯示搜尋結果的前後文內容
 - **Unicode 支援** - 完整的 Unicode 和多語言支援
 
+### csvkit - CSV 資料處理工具套件
+- **格式轉換** - 將 Excel、JSON、DBF 等格式轉換為 CSV
+- **欄位處理** - 擷取、重新排序和操作 CSV 欄位
+- **模式搜尋** - 在 CSV 檔案中進行正則表達式搜尋
+- **統計分析** - 計算描述性統計和資料摘要
+- **表格顯示** - 格式化表格檢視大型 CSV 檔案
+- **資料合併** - 連接和堆疊多個 CSV 檔案
+- **繁體中文界面** - 完整的繁體中文本地化支援
+
 ### Poppler Tools - PDF 處理工具集
 - **PDF 資訊** - 查看 PDF 文件詳細資訊
 - **文字提取** - 將 PDF 轉換為純文字
@@ -110,6 +119,12 @@
 - macOS: `brew install ripgrep`
 - Linux: `apt-get install ripgrep`
 - 驗證安裝: `rg --version`
+
+**csvkit 工具（推薦）**:
+- 所有平台: `pip install csvkit`
+- 包含工具: in2csv, csvcut, csvgrep, csvstat, csvlook, csvjoin, csvstack, csvjson, csvsql 等
+- 驗證安裝: `csvstat --version`
+- 用途: CSV 資料處理、格式轉換、統計分析
 
 **Poppler 工具（可選）**:
 - Windows: 從 [Poppler Windows](https://blog.alivate.com.au/poppler-windows/) 下載
@@ -199,6 +214,12 @@ cli_tool/
 │   │   ├── fd_model.py
 │   │   ├── fd_view.py
 │   │   └── fd_controller.py
+│   ├── csvkit/              # csvkit 工具插件
+│   │   ├── plugin.py
+│   │   ├── csvkit_model.py
+│   │   ├── csvkit_view.py
+│   │   ├── csvkit_controller.py
+│   │   └── csvkit_help.py
 │   └── poppler/             # Poppler 工具插件
 │       ├── plugin.py
 │       ├── poppler_model.py
@@ -286,30 +307,37 @@ pytest --cov=. tests/
 - 確認 PyQt5 正確安裝
 - 檢查是否缺少系統級的 GUI 依賴
 
-## 🎨 最新更新 (v2.3.0)
+## 🎨 最新更新 (v2.4.0)
 
 ### 新增功能
-- **dust 磁碟空間分析器** - 全新整合的磁碟空間分析工具
-  - 視覺化目錄樹狀結構顯示
+- **csvkit CSV 處理工具套件** - 全新整合的 CSV 資料處理工具
+  - 支援 14 個核心工具：in2csv、csvcut、csvgrep、csvstat 等
+  - 多格式輸入：Excel、JSON、DBF 轉 CSV
+  - 進階資料處理：欄位擷取、模式搜尋、統計分析
+  - 繁體中文界面：完整的本地化支援
+- **dust 磁碟空間分析器** - 視覺化磁碟空間分析工具
   - 智能解析 dust 輸出格式，清理樹狀符號
   - 支援多層級檢視和檔案類型識別
 - **Ripgrep 文本搜尋** - 高速正則表達式搜尋引擎
   - 極速搜尋性能，比傳統 grep 快數倍
-  - 智能篩選和多格式輸出支援
   - 完整的 Unicode 和多語言支援
 
 ### UI 優化
-- **dust 工具界面** - 現代化的磁碟分析界面設計
-  - 雙檢視模式：樹狀檢視和原始輸出
-  - 即時進度回饋和智能超時機制
-  - 豐富的過濾和排序選項
-- **Ripgrep 界面** - 專業的文本搜尋界面
-  - 多種輸出格式選擇和實時搜尋預覽
-  - 進階搜尋選項和檔案類型篩選
+- **csvkit 工具界面** - 專業的 CSV 處理界面設計
+  - 四大功能標籤：輸入工具、處理工具、輸出/分析、自定義命令
+  - 智能檔案類型檢測和編碼處理
+  - 增強的輸出顯示區域（75% 垂直空間）
+  - 完整繁體中文本地化（界面、工具描述、狀態訊息）
+- **響應式佈局** - 優化的分割面板設計
+  - 控制面板和輸出面板的最佳比例配置
+  - 即時結果保存功能，支援多種格式輸出
 
 ### 技術改進
+- **繁體中文本地化** - 全面的多語言支援
+  - 工具類別和描述的完整翻譯
+  - 狀態訊息和錯誤提示的本地化
+  - 動態內容的繁體中文顯示
 - **插件架構優化** - 改善插件載入和管理機制
-- **分支符號處理** - 完善的 Unicode 樹狀符號解析和清理
 - **編碼支援** - 強化的 UTF-8 編碼處理和多語言支援
 
 ## 📝 開發日誌
