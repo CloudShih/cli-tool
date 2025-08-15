@@ -70,6 +70,15 @@
 - **資料合併** - 連接和堆疊多個 CSV 檔案
 - **繁體中文界面** - 完整的繁體中文本地化支援
 
+### Glances - 系統監控工具
+- **系統概覽** - 即時顯示 CPU、記憶體、磁碟使用率和進度條
+- **進程監控** - 詳細的進程列表和資源使用情況
+- **磁碟空間** - 文件系統使用情況和可用空間分析
+- **網路詳情** - 網路介面流量統計和連接狀態
+- **原始數據** - 完整的 JSON 格式系統資訊檢視
+- **自動監控** - 支援自動啟動和可配置的定期刷新
+- **Web 服務器** - 內建 Web 服務器功能，可啟動網頁版 Glances
+
 ### Poppler Tools - PDF 處理工具集
 - **PDF 資訊** - 查看 PDF 文件詳細資訊
 - **文字提取** - 將 PDF 轉換為純文字
@@ -125,6 +134,14 @@
 - 包含工具: in2csv, csvcut, csvgrep, csvstat, csvlook, csvjoin, csvstack, csvjson, csvsql 等
 - 驗證安裝: `csvstat --version`
 - 用途: CSV 資料處理、格式轉換、統計分析
+
+**Glances 工具（推薦）**:
+- 所有平台: `pip install glances`
+- Windows: 也可從 [Glances releases](https://github.com/nicolargo/glances/releases) 下載
+- macOS: `brew install glances`
+- Linux: `apt-get install glances` 或 `yum install glances`
+- 驗證安裝: `glances --version`
+- 用途: 系統監控、進程管理、資源使用分析
 
 **Poppler 工具（可選）**:
 - Windows: 從 [Poppler Windows](https://blog.alivate.com.au/poppler-windows/) 下載
@@ -307,9 +324,16 @@ pytest --cov=. tests/
 - 確認 PyQt5 正確安裝
 - 檢查是否缺少系統級的 GUI 依賴
 
-## 🎨 最新更新 (v2.4.0)
+## 🎨 最新更新 (v2.5.0)
 
 ### 新增功能
+- **Glances 系統監控工具** - 全新整合的系統資源監控工具
+  - 系統概覽：即時 CPU、記憶體、負載、磁碟 I/O、網路流量
+  - 進程監控：詳細的進程列表和資源使用情況
+  - 磁碟空間：文件系統使用情況和可用空間分析
+  - 網路詳情：網路介面流量統計和連接狀態
+  - 原始數據：完整的 JSON 格式系統資訊檢視
+  - Web 服務器：內建 Web 服務器功能，可啟動網頁版 Glances
 - **csvkit CSV 處理工具套件** - 全新整合的 CSV 資料處理工具
   - 支援 14 個核心工具：in2csv、csvcut、csvgrep、csvstat 等
   - 多格式輸入：Excel、JSON、DBF 轉 CSV
@@ -323,6 +347,12 @@ pytest --cov=. tests/
   - 完整的 Unicode 和多語言支援
 
 ### UI 優化
+- **Glances 監控界面** - 專業的系統監控界面設計
+  - 上下分割式佈局：控制面板與詳細監控標籤頁
+  - 系統概覽區域：即時進度條顯示 CPU 和記憶體使用率
+  - 四大監控標籤：進程監控、磁碟空間、網路詳情、原始數據
+  - 自動啟動監控：視圖顯示時自動開始系統監控
+  - 暗色主題表格：一致的深色主題設計
 - **csvkit 工具界面** - 專業的 CSV 處理界面設計
   - 四大功能標籤：輸入工具、處理工具、輸出/分析、自定義命令
   - 智能檔案類型檢測和編碼處理
@@ -333,6 +363,10 @@ pytest --cov=. tests/
   - 即時結果保存功能，支援多種格式輸出
 
 ### 技術改進
+- **系統監控架構** - 穩定的 Glances 整合和資料處理
+  - 自動監控啟動機制和定期資料刷新
+  - 多種資料格式支援：系統概覽、進程、磁碟、網路
+  - Web 服務器整合：支援啟動獨立的 Glances Web 界面
 - **繁體中文本地化** - 全面的多語言支援
   - 工具類別和描述的完整翻譯
   - 狀態訊息和錯誤提示的本地化

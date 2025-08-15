@@ -17,6 +17,9 @@ A PyQt5-based GUI application that integrates multiple CLI tools into a unified 
   - `tools/pandoc/` - Universal document converter using pandoc
   - `tools/poppler/` - PDF manipulation tools using Poppler utilities and QPDF
   - `tools/bat/` - Syntax highlighting file viewer using bat
+  - `tools/glances/` - System monitoring tool for real-time resource tracking
+  - `tools/csvkit/` - CSV data processing toolkit with multiple utilities
+  - `tools/dust/` - Disk space analyzer with tree-like visualization
 - **Utilities**: `pdf_decryptor.py` - Standalone PDF decryption utility using pikepdf
 
 ### MVC Pattern Implementation
@@ -100,6 +103,15 @@ The application wraps these external command-line tools:
 
 **Bat**: Expected in system PATH
 - `bat` - Syntax highlighting file viewer
+
+**Glances**: Expected in system PATH or via pip
+- `glances` - System monitoring tool for real-time performance metrics
+
+**csvkit**: Expected via pip installation
+- `in2csv`, `csvcut`, `csvgrep`, `csvstat`, `csvlook`, `csvjoin`, etc. - CSV processing utilities
+
+**dust**: Expected in system PATH
+- `dust` - Fast disk usage analyzer
 
 ## Architecture Patterns
 
