@@ -5,11 +5,6 @@ from PyQt5.QtGui import QIcon
 from config.config_manager import config_manager
 from ui.main_window import ModernMainWindow
 
-# 設置日誌
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 def main():
