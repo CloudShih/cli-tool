@@ -300,6 +300,8 @@ class NavigationSidebar(QFrame):
                     icon = "💾"
                 elif plugin_name == "csvkit":
                     icon = "📊"
+                elif plugin_name == "glances":
+                    icon = "📈"
                 
                 button = ModernButton(f"{icon} {plugin.name.title()}")
                 button.setProperty("sidebar-nav", True)
@@ -501,43 +503,54 @@ class ModernMainWindow(QMainWindow):
     def load_plugins(self):
         """載入插件 - 使用進度對話框"""
         try:
+            print("[DEBUG] 開始載入插件...")
             self.set_status("準備載入插件...", "processing")
             
             # 創建並顯示插件載入對話框
+            print("[DEBUG] 創建插件載入對話框...")
             loading_dialog = PluginLoadingDialog(plugin_manager, self)
             loading_dialog.loading_completed.connect(self.on_plugins_loaded)
             
             # 異步啟動載入
+            print("[DEBUG] 異步啟動插件載入...")
             QTimer.singleShot(100, loading_dialog.start_loading)
             
         except Exception as e:
             logger.error(f"Error starting plugin loading: {e}")
+            print(f"[DEBUG] 插件載入啟動失敗: {e}")
             self.set_status(f"插件載入失敗: {str(e)}", "error")
             self.show_plugin_error(str(e))
     
     def on_plugins_loaded(self, success: bool, message: str):
         """處理插件載入完成"""
         try:
+            print(f"[DEBUG] 插件載入完成: {success}, 訊息: {message}")
             if success:
                 # 在主線程中創建插件視圖
+                print("[DEBUG] 在主線程中創建插件視圖...")
                 self.create_plugin_views_in_main_thread()
                 
                 # 添加主題選擇器和組件展示
+                print("[DEBUG] 添加特殊視圖...")
                 self.add_special_views()
                 
                 # 更新側邊欄導航
+                print("[DEBUG] 更新側邊欄導航...")
                 self.sidebar.refresh_plugin_navigation()
                 
                 plugin_count = len(self.plugin_views)
+                print(f"[DEBUG] 插件載入完成，共 {plugin_count} 個插件視圖")
                 self.set_status(f"插件載入完成 - {message}", "success")
                 logger.info(f"Successfully loaded {plugin_count} plugins")
             else:
+                print(f"[DEBUG] 插件載入失敗: {message}")
                 self.set_status(f"插件載入失敗 - {message}", "error")
                 # 仍然添加特殊視圖，即使插件載入失敗
                 self.add_special_views()
                 
         except Exception as e:
             logger.error(f"Error processing loaded plugins: {e}")
+            print(f"[DEBUG] 插件處理失敗: {e}")
             self.set_status(f"插件處理失敗: {str(e)}", "error")
     
     def create_plugin_views_in_main_thread(self):
@@ -545,12 +558,20 @@ class ModernMainWindow(QMainWindow):
         try:
             # 獲取所有已註冊且可用的插件
             available_plugins = plugin_manager.get_available_plugins()
+            print(f"[DEBUG] 可用插件: {list(available_plugins.keys())}")
             
             for plugin_name, plugin in available_plugins.items():
                 try:
+                    print(f"[DEBUG] 創建 {plugin_name} 插件組件...")
+                    
                     # 在主線程中創建 MVC 組件
+                    print(f"   [DEBUG] 創建 {plugin_name} 模型...")
                     model = plugin.create_model()
+                    
+                    print(f"   [DEBUG] 創建 {plugin_name} 視圖...")
                     view = plugin.create_view()
+                    
+                    print(f"   🎮 [DEBUG] 創建 {plugin_name} 控制器...")
                     controller = plugin.create_controller(model, view)
                     
                     # 保存到插件管理器實例
@@ -565,13 +586,26 @@ class ModernMainWindow(QMainWindow):
                     self.plugin_views[plugin_name] = view
                     self.content_stack.addWidget(view)
                     
+                    print(f"   [DEBUG] {plugin_name} 插件創建完成並添加到界面")
                     logger.info(f"Created plugin view in main thread: {plugin_name}")
+                    
+                    # 特別檢查 Glances 插件
+                    if plugin_name == 'glances':
+                        print(f"   🔬 [DEBUG] Glances 特別檢查...")
+                        if hasattr(view, 'charts_widget'):
+                            print(f"      圖表組件: {'存在' if view.charts_widget else '不存在'}")
+                        if hasattr(view, 'is_monitoring_started'):
+                            print(f"      監控狀態: {view.is_monitoring_started}")
+                        if hasattr(view, 'auto_start_attempted'):
+                            print(f"      自動啟動嘗試: {view.auto_start_attempted}")
                     
                 except Exception as e:
                     logger.error(f"Error creating view for plugin {plugin_name}: {e}")
+                    print(f"   [DEBUG] {plugin_name} 插件創建失敗: {e}")
                     
         except Exception as e:
             logger.error(f"Error creating plugin views in main thread: {e}")
+            print(f"[DEBUG] 創建插件視圖失敗: {e}")
     
     def add_special_views(self):
         """添加特殊視圖（主題選擇器、組件展示）"""
@@ -597,17 +631,29 @@ class ModernMainWindow(QMainWindow):
     def on_navigation_changed(self, key: str):
         """處理導航變更"""
         try:
+            print(f"[DEBUG] 導航變更到: {key}")
             logger.info(f"Navigation changed to: {key}")
             
             # 顯示切換反饋
             self.show_navigation_toast(key)
             
             if key == "welcome":
+                print("🏠 [DEBUG] 切換到歡迎頁面")
                 self.content_stack.setCurrentWidget(self.welcome_page)
                 self.set_status("歡迎使用 CLI Tool Integration", "ready")
             elif key in self.plugin_views:
                 view = self.plugin_views[key]
+                print(f"[DEBUG] 切換到插件視圖: {key}")
                 self.content_stack.setCurrentWidget(view)
+                
+                # 特別處理 Glances 插件
+                if key == 'glances':
+                    print("[DEBUG] Glances 視圖已激活，檢查自動啟動...")
+                    if hasattr(view, '_try_auto_start_monitoring'):
+                        print("   [DEBUG] 手動觸發自動啟動監控...")
+                        view._try_auto_start_monitoring()
+                    else:
+                        print("   [DEBUG] 視圖缺少 _try_auto_start_monitoring 方法")
                 
                 # 更新狀態欄訊息
                 if hasattr(view, 'windowTitle') and callable(getattr(view, 'windowTitle', None)):
@@ -619,11 +665,15 @@ class ModernMainWindow(QMainWindow):
                 else:
                     self.set_status(f"當前工具: {key.title()}", "ready")
             else:
+                print(f"❓ [DEBUG] 未知的導航鍵: {key}")
                 logger.warning(f"Unknown navigation key: {key}")
                 self.set_status(f"未知頁面: {key}", "warning")
                 
+            print(f"[DEBUG] 導航完成到: {key}")
+                
         except Exception as e:
             logger.error(f"Error changing navigation: {e}")
+            print(f"[DEBUG] 導航變更錯誤: {e}")
             self.set_status(f"導航錯誤: {str(e)}", "error")
     
     def show_navigation_toast(self, key: str):
@@ -639,6 +689,7 @@ class ModernMainWindow(QMainWindow):
                 "bat": "語法高亮查看器",
                 "dust": "磁碟空間分析器",
                 "csvkit": "CSV 數據處理",
+                "glances": "系統監控",
                 "themes": "主題設定",
                 "components": "UI 組件"
             }
@@ -654,6 +705,7 @@ class ModernMainWindow(QMainWindow):
                 "bat": "🌈",
                 "dust": "💾",
                 "csvkit": "📊",
+                "glances": "📈",
                 "themes": "🎨",
                 "components": "🧩"
             }

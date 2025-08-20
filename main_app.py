@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 def main():
     """主函數 - 應用程式入口點"""
+    print("[DEBUG] 啟動主應用程序...")
     app = QApplication(sys.argv)
     
     # Set application icon using config manager
@@ -26,13 +27,17 @@ def main():
     except Exception as e:
         logger.warning(f"Could not set application icon: {e}")
     
+    print("[DEBUG] 創建主窗口...")
     # 創建並顯示現代化主應用程式
     try:
         main_window = ModernMainWindow()
+        print("[DEBUG] 主窗口創建成功，正在顯示...")
         main_window.show()
         logger.info("Main window created and shown successfully")
+        print("[DEBUG] 主窗口已顯示，開始事件循環...")
     except Exception as e:
         logger.error(f"Error creating main window: {e}")
+        print(f"[DEBUG] 主窗口創建失敗: {e}")
         return 1
     
     # 運行應用程式事件循環

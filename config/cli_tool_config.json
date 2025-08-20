@@ -72,10 +72,10 @@
       "name": "dark_professional"
     },
     "window": {
-      "width": 1241,
-      "height": 900,
-      "x": 647,
-      "y": 80
+      "width": 1600,
+      "height": 1000,
+      "x": 133,
+      "y": 56
     },
     "remember_window_state": true,
     "show_tooltips": true

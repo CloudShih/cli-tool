@@ -346,24 +346,35 @@ class PluginLoadingDialog(QWidget):
         
         # 獲取可用插件信息
         try:
-            # 這裡我們需要在不初始化的情況下獲取插件信息
-            # 先創建基本的插件卡片
-            plugin_info = [
-                ("fd", "快速檔案和目錄搜尋工具"),
-                ("glow", "美觀的 Markdown 文檔閱讀器"),
-                ("pandoc", "萬能文檔轉換器，支援 50+ 種格式"),
-                ("poppler", "PDF 處理工具集"),
-                ("bat", "語法高亮查看器，支援多種程式語言"),
-                ("ripgrep", "超快文本搜尋工具，支援正則表達式"),
-            ]
+            # 先進行插件發現，但不初始化
+            discovered_plugins = self.plugin_manager.discover_plugins()
+            all_plugins = self.plugin_manager.get_all_plugins()
             
-            for plugin_name, description in plugin_info:
+            # 插件描述映射
+            plugin_descriptions = {
+                "fd": "快速檔案和目錄搜尋工具",
+                "glow": "美觀的 Markdown 文檔閱讀器",
+                "pandoc": "萬能文檔轉換器，支援 50+ 種格式",
+                "poppler": "PDF 處理工具集",
+                "bat": "語法高亮查看器，支援多種程式語言",
+                "ripgrep": "超快文本搜尋工具，支援正則表達式",
+                "dust": "磁碟空間分析工具，顯示目錄大小",
+                "csvkit": "CSV 數據處理工具套件",
+                "glances": "系統監控工具，實時顯示 CPU、記憶體、網路和磁碟使用情況",
+            }
+            
+            # 動態創建插件卡片
+            for plugin_name, plugin in all_plugins.items():
+                description = plugin_descriptions.get(plugin_name, f"{plugin_name} plugin")
+                
                 card = PluginLoadingCard(plugin_name, description)
                 self.plugin_cards[plugin_name] = card
                 self.cards_layout.addWidget(card)
                 
                 # 添加顯示動畫延遲
                 QTimer.singleShot(len(self.plugin_cards) * 100, card.show_with_animation)
+            
+            logger.info(f"Created {len(self.plugin_cards)} plugin cards: {list(self.plugin_cards.keys())}")
             
             # 添加伸縮空間
             self.cards_layout.addStretch()
