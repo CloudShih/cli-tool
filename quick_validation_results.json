@@ -1,0 +1,87 @@
+{
+  "timestamp": "2025-08-20 15:46:45",
+  "test_results": {
+    "module_imports": {
+      "passed": 3,
+      "total": 3,
+      "details": {
+        "main_app": {
+          "success": true,
+          "time": 0.2531118392944336
+        },
+        "config.config_manager": {
+          "success": true,
+          "time": 1.9788742065429688e-05
+        },
+        "ui.theme_manager": {
+          "success": true,
+          "time": 3.0994415283203125e-06
+        }
+      }
+    },
+    "config_system": {
+      "success": true,
+      "sections": [
+        "tools",
+        "ui",
+        "general"
+      ],
+      "total_items": 3
+    },
+    "tool_models": {
+      "passed": 3,
+      "total": 3,
+      "details": {
+        "tools.fd.fd_model": {
+          "success": true
+        },
+        "tools.pandoc.pandoc_model": {
+          "success": true
+        },
+        "tools.glow.glow_model": {
+          "success": true
+        }
+      }
+    },
+    "tool_availability": {
+      "available": 4,
+      "total": 4,
+      "details": {
+        "fd": {
+          "available": true,
+          "path": "C:\\Users\\cloudchshih\\AppData\\Local\\Microsoft\\WinGet\\Packages\\sharkdp.fd_Microsoft.Winget.Source_8wekyb3d8bbwe\\fd-v10.2.0-x86_64-pc-windows-msvc\\fd.EXE"
+        },
+        "pandoc": {
+          "available": true,
+          "path": "C:\\Users\\cloudchshih\\AppData\\Local\\Pandoc\\pandoc.EXE"
+        },
+        "bat": {
+          "available": true,
+          "path": "C:\\Users\\cloudchshih\\scoop\\shims\\bat.EXE"
+        },
+        "rg": {
+          "available": true,
+          "path": "C:\\Users\\cloudchshih\\AppData\\Local\\Microsoft\\WinGet\\Packages\\BurntSushi.ripgrep.MSVC_Microsoft.Winget.Source_8wekyb3d8bbwe\\ripgrep-14.1.1-x86_64-pc-windows-msvc\\rg.EXE"
+        }
+      }
+    },
+    "performance": {
+      "config_load_avg_time": 2.463658650716146e-06,
+      "config_load_times": [
+        5.9604644775390625e-06,
+        9.5367431640625e-07,
+        4.76837158203125e-07
+      ],
+      "tool_detection_time": 0.06197357177734375,
+      "tools_tested": 4
+    }
+  },
+  "summary": {
+    "total_test_categories": 5,
+    "module_import_rate": "3/3 (100.0%)",
+    "tool_model_rate": "3/3 (100.0%)",
+    "tool_availability_rate": "4/4 (100.0%)",
+    "config_system_status": "OK",
+    "overall_health": "GOOD"
+  }
+}
