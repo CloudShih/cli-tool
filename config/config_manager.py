@@ -3,12 +3,12 @@
 支援開發和 PyInstaller 打包環境
 """
 
-import os
-import sys
 import json
-from pathlib import Path
-from typing import Dict, Any, Optional
 import logging
+import shutil
+import sys
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 # 設置日誌
 logging.basicConfig(level=logging.INFO)
@@ -124,14 +124,9 @@ class ConfigManager:
     def _check_executable(self, path: str) -> bool:
         """檢查執行檔是否存在且可執行"""
         try:
-            if os.path.isfile(path) and os.access(path, os.X_OK):
-                return True
-            # 檢查是否在 PATH 中
-            if any(os.path.isfile(os.path.join(p, path)) for p in os.environ.get("PATH", "").split(os.pathsep)):
-                return True
+            return shutil.which(path) is not None
         except Exception:
-            pass
-        return False
+            return False
     
     def get(self, key: str, default: Any = None) -> Any:
         """
