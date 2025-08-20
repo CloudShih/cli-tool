@@ -23,7 +23,7 @@ def test_welcome_layout():
         app = QApplication([])
         
         # 導入主窗口類
-        from ui.main_window import WelcomePage
+        from ui.welcome_page import WelcomePage
         
         # 創建歡迎頁面實例
         welcome_page = WelcomePage()
