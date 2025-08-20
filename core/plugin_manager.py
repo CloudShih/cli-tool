@@ -7,12 +7,21 @@ import os
 import sys
 import importlib
 import logging
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Type, Optional, Any
 from abc import ABC, abstractmethod
 from pathlib import Path
 from config.config_manager import config_manager
 
 logger = logging.getLogger(__name__)
+
+# Cache for tool availability checks to avoid repeated subprocess calls
+_tool_availability_cache: Dict[str, bool] = {}
+_cache_lock = threading.Lock()
+
+# Executor for running blocking checks without stalling the main thread
+_tool_check_executor = ThreadPoolExecutor(max_workers=4)
 
 
 class PluginInterface(ABC):
@@ -81,14 +90,31 @@ class PluginInterface(ABC):
     
     def _check_tool_availability(self, tool: str) -> bool:
         """檢查單個工具是否可用"""
-        try:
-            import subprocess
-            result = subprocess.run([tool, '--help'], 
-                                  capture_output=True, 
-                                  timeout=5)
-            return result.returncode == 0
-        except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.CalledProcessError):
-            return False
+        with _cache_lock:
+            if tool in _tool_availability_cache:
+                return _tool_availability_cache[tool]
+
+        def _run_check() -> bool:
+            try:
+                import subprocess
+                result = subprocess.run(
+                    [tool, '--help'], capture_output=True, timeout=5
+                )
+                return result.returncode == 0
+            except (
+                subprocess.TimeoutExpired,
+                FileNotFoundError,
+                subprocess.CalledProcessError,
+            ):
+                return False
+
+        future = _tool_check_executor.submit(_run_check)
+        available = future.result()
+
+        with _cache_lock:
+            _tool_availability_cache[tool] = available
+
+        return available
 
 
 class PluginManager:
@@ -98,12 +124,24 @@ class PluginManager:
         self.plugins: Dict[str, PluginInterface] = {}
         self.plugin_instances: Dict[str, Dict[str, Any]] = {}
         self._initialized = False
-        
-    def initialize(self):
-        """初始化插件管理器"""
+
+    def initialize(self, async_mode: bool = False):
+        """初始化插件管理器
+
+        Args:
+            async_mode: 若為 True，初始化將在背景執行緒中進行，
+                        以避免阻塞主執行緒。
+        """
         if self._initialized:
             return
-            
+
+        if async_mode:
+            thread = threading.Thread(target=self._initialize_internal, daemon=True)
+            thread.start()
+        else:
+            self._initialize_internal()
+
+    def _initialize_internal(self):
         logger.info("Initializing Plugin Manager...")
         self.discover_plugins()
         self.load_plugins()
