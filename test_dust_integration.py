@@ -287,7 +287,7 @@ class DustIntegrationTest(unittest.TestCase):
     def test_09_welcome_page_dust_card(self):
         """測試 9: 歡迎頁面 Dust 卡片"""
         try:
-            from ui.main_window import WelcomePage
+            from ui.welcome_page import WelcomePage
             
             # 創建歡迎頁面
             welcome_page = WelcomePage()
