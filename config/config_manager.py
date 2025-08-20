@@ -66,10 +66,13 @@ class ConfigManager:
     
     def _get_default_config(self) -> Dict[str, Any]:
         """獲取預設配置"""
+        fd_path = os.environ.get("FD_PATH")
+        if not fd_path:
+            fd_path = self._find_fd_executable()
         return {
             "tools": {
                 "fd": {
-                    "executable_path": self._find_fd_executable(),
+                    "executable_path": fd_path,
                     "default_search_type": "both",  # both, files, directories
                     "default_hidden": False,
                     "default_case_sensitive": False
@@ -106,18 +109,30 @@ class ConfigManager:
     
     def _find_fd_executable(self) -> str:
         """自動尋找 fd 執行檔路徑"""
+        env_path = os.environ.get("FD_PATH")
+        if env_path and self._check_executable(env_path):
+            logger.info(f"Using fd executable from environment: {env_path}")
+            return env_path
+
+        config_path = (
+            self._config.get("tools", {}).get("fd", {}).get("executable_path")
+        )
+        if config_path and self._check_executable(config_path):
+            logger.info(f"Using fd executable from config: {config_path}")
+            return config_path
+
         # 常見的 fd 安裝路径
         common_paths = [
             "fd",  # 在 PATH 中
             "fd.exe",  # Windows
             "C:\\Users\\cloudchshih\\AppData\\Local\\Microsoft\\WinGet\\Packages\\sharkdp.fd_Microsoft.WinGet.Source_8wekyb3d8bbwe\\fd-v10.2.0-x86_64-pc-windows-msvc\\fd.exe"
         ]
-        
+
         for path in common_paths:
             if self._check_executable(path):
                 logger.info(f"Found fd executable at: {path}")
                 return path
-        
+
         logger.warning("fd executable not found in common paths")
         return "fd"  # 回傳預設值
     
