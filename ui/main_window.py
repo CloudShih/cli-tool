@@ -85,7 +85,7 @@ class WelcomePage(QWidget):
             # 第三行：數據處理與系統工具
             ("💾", "磁碟空間分析器", "使用 dust 工具提供磁碟空間分析功能，支援目錄大小視覺化和詳細檔案統計。"),
             ("📊", "CSV 數據處理", "使用 csvkit 工具套件處理 CSV 數據，提供格式轉換、數據清理、統計分析等 15 個專業工具。"),
-            ("🎨", "主題設定", "豐富的主題選擇，支援深色、淺色和系統主題自動切換。"),
+            ("🎬", "影音下載", "使用 YT-DLP 工具下載 YouTube、Bilibili 等多平台影音內容，支援多種格式和品質選擇。"),
         ]
         
         # 按照 3x3 網格排列卡片，增加更好的間距
@@ -302,6 +302,8 @@ class NavigationSidebar(QFrame):
                     icon = "📊"
                 elif plugin_name == "glances":
                     icon = "📈"
+                elif plugin_name == "yt_dlp":
+                    icon = "🎬"
                 
                 button = ModernButton(f"{icon} {plugin.name.title()}")
                 button.setProperty("sidebar-nav", True)
@@ -690,6 +692,7 @@ class ModernMainWindow(QMainWindow):
                 "dust": "磁碟空間分析器",
                 "csvkit": "CSV 數據處理",
                 "glances": "系統監控",
+                "yt_dlp": "影音下載",
                 "themes": "主題設定",
                 "components": "UI 組件"
             }
@@ -706,6 +709,7 @@ class ModernMainWindow(QMainWindow):
                 "dust": "💾",
                 "csvkit": "📊",
                 "glances": "📈",
+                "yt_dlp": "🎬",
                 "themes": "🎨",
                 "components": "🧩"
             }
@@ -805,7 +809,8 @@ class ModernMainWindow(QMainWindow):
             "• Pandoc - 萬能文檔轉換器\n"
             "• Poppler - PDF 處理工具集\n"
             "• bat - 語法高亮查看器\n"
-            "• dust - 磁碟空間分析器\n\n"
+            "• dust - 磁碟空間分析器\n"
+            "• yt-dlp - 影音下載工具\n\n"
             "© 2024 CLI Tool Integration"
         )
     

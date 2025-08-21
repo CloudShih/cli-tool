@@ -87,6 +87,15 @@
 - **PDF 合併** - 將多個 PDF 合併為一個文件
 - **格式轉換** - PDF 轉 HTML、圖片等格式
 
+### YT-DLP - 影音下載工具
+- **多平台支援** - 支援 YouTube、Bilibili 等 1000+ 影音平台
+- **格式選擇** - 自由選擇影片品質和音訊格式
+- **批量下載** - 支援多個 URL 的批量下載管理
+- **即時進度** - 詳細的下載進度監控和速度顯示
+- **下載歷史** - 完整的下載記錄追蹤和管理
+- **自動重試** - 智能的下載失敗重試機制
+- **檔案管理** - 自動組織下載檔案和目錄結構
+
 ## 📋 系統要求
 
 ### Python 環境
@@ -147,6 +156,15 @@
 - Windows: 從 [Poppler Windows](https://blog.alivate.com.au/poppler-windows/) 下載
 - 包含工具: pdfinfo, pdftotext, pdfimages, pdfseparate, pdfunite, pdftoppm, pdftohtml
 - QPDF: 從 [QPDF](https://qpdf.sourceforge.io/) 下載用於 PDF 加密處理
+
+**YT-DLP 工具（推薦）**:
+- 所有平台: `pip install yt-dlp`
+- Windows: `winget install yt-dlp.yt-dlp` 或從 [yt-dlp releases](https://github.com/yt-dlp/yt-dlp/releases) 下載
+- macOS: `brew install yt-dlp`
+- Linux: `apt-get install yt-dlp` 或使用 pip 安裝
+- 驗證安裝: `yt-dlp --version`
+- 用途: YouTube、Bilibili 等 1000+ 平台的影音下載
+- 建議同時安裝 FFmpeg 以獲得最佳體驗: `https://ffmpeg.org/download.html`
 
 ## 🚀 快速開始
 
@@ -237,11 +255,25 @@ cli_tool/
 │   │   ├── csvkit_view.py
 │   │   ├── csvkit_controller.py
 │   │   └── csvkit_help.py
-│   └── poppler/             # Poppler 工具插件
+│   ├── poppler/             # Poppler 工具插件
+│   │   ├── plugin.py
+│   │   ├── poppler_model.py
+│   │   ├── poppler_view.py
+│   │   └── poppler_controller.py
+│   └── yt_dlp/              # YT-DLP 影音下載插件
 │       ├── plugin.py
-│       ├── poppler_model.py
-│       ├── poppler_view.py
-│       └── poppler_controller.py
+│       ├── yt_dlp_model.py
+│       ├── yt_dlp_view.py
+│       ├── yt_dlp_controller.py
+│       ├── core/            # 核心模組
+│       │   ├── data_models.py
+│       │   ├── download_engine.py
+│       │   └── async_worker.py
+│       ├── components/      # UI 組件
+│       │   ├── format_selector.py
+│       │   └── progress_display.py
+│       └── tests/           # 測試文件
+│           └── test_yt_dlp_integration.py
 ├── static/                  # 靜態資源
 │   └── favicon/
 └── tests/                   # 測試文件
@@ -324,9 +356,17 @@ pytest --cov=. tests/
 - 確認 PyQt5 正確安裝
 - 檢查是否缺少系統級的 GUI 依賴
 
-## 🎨 最新更新 (v2.5.0)
+## 🎨 最新更新 (v2.6.0)
 
 ### 新增功能
+- **YT-DLP 影音下載工具** - 全新整合的多平台影音下載工具 🎬
+  - 多平台支援：YouTube、Bilibili、Twitter、Facebook、TikTok 等 1000+ 影音平台
+  - 智能格式選擇：自動識別最佳品質，支援自訂影片解析度和音訊格式
+  - 批量下載管理：多 URL 同時下載，支援佇列管理和優先順序設定
+  - 即時進度監控：詳細的下載進度、速度、剩餘時間顯示
+  - 完整下載歷史：自動記錄下載記錄，支援搜尋和匯出功能
+  - 智能重試機制：網路中斷自動重試，確保下載成功
+  - 檔案組織管理：自動建立目錄結構，支援自訂檔名模板
 - **Glances 系統監控工具** - 全新整合的系統資源監控工具
   - 系統概覽：即時 CPU、記憶體、負載、磁碟 I/O、網路流量
   - 進程監控：詳細的進程列表和資源使用情況
@@ -347,6 +387,13 @@ pytest --cov=. tests/
   - 完整的 Unicode 和多語言支援
 
 ### UI 優化
+- **YT-DLP 下載界面** - 專業的影音下載界面設計 🎬
+  - 四大功能標籤：URL 輸入、下載佇列、進度監控、歷史記錄
+  - 智能 URL 驗證：即時檢測支援的影音平台和 URL 格式
+  - 格式選擇器：視覺化影片品質和音訊格式選擇介面
+  - 即時進度顯示：下載速度、檔案大小、剩餘時間詳細資訊
+  - 佇列管理系統：拖拽排序、暫停/繼續、批量操作功能
+  - 歷史記錄管理：搜尋、篩選、匯出下載記錄功能
 - **Glances 監控界面** - 專業的系統監控界面設計
   - 上下分割式佈局：控制面板與詳細監控標籤頁
   - 系統概覽區域：即時進度條顯示 CPU 和記憶體使用率
@@ -363,6 +410,12 @@ pytest --cov=. tests/
   - 即時結果保存功能，支援多種格式輸出
 
 ### 技術改進
+- **影音下載架構** - 穩定的 YT-DLP 整合和多媒體處理 🎬
+  - 非同步下載機制：多線程下載管理，確保 UI 回應性
+  - 智能命令建構：動態產生最佳化的 yt-dlp 命令參數
+  - 進度解析引擎：即時解析下載進度和統計資訊
+  - 錯誤恢復系統：網路中斷自動重試和錯誤處理機制
+  - 跨平台相容性：Windows、macOS、Linux 完整支援
 - **系統監控架構** - 穩定的 Glances 整合和資料處理
   - 自動監控啟動機制和定期資料刷新
   - 多種資料格式支援：系統概覽、進程、磁碟、網路
