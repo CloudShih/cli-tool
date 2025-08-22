@@ -4,6 +4,8 @@
 """
 
 import logging
+import asyncio
+import time
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QSplitter,
     QStackedWidget, QFrame, QLabel, QScrollArea, QSizePolicy,
@@ -19,6 +21,7 @@ from ui.responsive_layout import ResponsiveLayoutManager, get_screen_info
 from ui.animation_effects import animation_manager, animate_widget, AnimatedButton
 from config.config_manager import config_manager
 from core.plugin_manager import plugin_manager
+from core.fast_plugin_loader import create_optimized_plugin_manager, LoadingStrategy
 from ui.theme_manager import theme_manager
 
 logger = logging.getLogger(__name__)
@@ -80,7 +83,7 @@ class WelcomePage(QWidget):
             ("📖", "Markdown 閱讀器", "使用 Glow 工具美觀地預覽 Markdown 文檔，支援本地檔案和遠程 URL，提供多種主題樣式。"),
             # 第二行：轉換工具
             ("🔄", "文檔轉換", "使用 Pandoc 萬能轉換器，支援 Markdown、HTML、DOCX 等多種格式互轉，可輸出為 PDF。"),
-            ("📄", "PDF 處理", "使用 Poppler 工具集處理 PDF 文件，包括轉換、分割、合併等功能。"),
+            ("📄", "PDF 處理", "使用 Poppler 和 QPDF 工具集處理 PDF 文件，包括轉換、分割、合併、加密、解密、線性化、壓縮和修復等完整功能。"),
             ("🌈", "語法高亮查看器", "使用 bat 工具提供語法高亮的文件查看功能，支援多種程式語言和主題樣式。"),
             # 第三行：數據處理與系統工具
             ("💾", "磁碟空間分析器", "使用 dust 工具提供磁碟空間分析功能，支援目錄大小視覺化和詳細檔案統計。"),
@@ -252,7 +255,18 @@ class NavigationSidebar(QFrame):
     def load_plugin_navigation(self, main_layout):
         """載入插件導航項目"""
         try:
-            plugins = plugin_manager.get_available_plugins()
+            # 嘗試從主窗口獲取優化插件管理器
+            main_window = self.parent()
+            while main_window and not hasattr(main_window, 'optimized_plugin_manager'):
+                main_window = main_window.parent()
+            
+            # 使用適當的插件管理器
+            if main_window and hasattr(main_window, 'optimized_plugin_manager') and main_window.optimized_plugin_manager:
+                plugins = main_window.optimized_plugin_manager.get_available_plugins()
+                print("[DEBUG] Sidebar 使用優化插件管理器載入導航")
+            else:
+                plugins = plugin_manager.get_available_plugins()
+                print("[DEBUG] Sidebar 使用標準插件管理器載入導航")
             
             # 找到工具區域的插入位置（在分隔線後）
             tools_index = -1
@@ -290,6 +304,8 @@ class NavigationSidebar(QFrame):
                     icon = "🔎"
                 elif plugin_name == "poppler":
                     icon = "📄"
+                elif plugin_name == "qpdf":
+                    icon = "📋"
                 elif plugin_name == "glow":
                     icon = "📖"
                 elif plugin_name == "pandoc":
@@ -348,6 +364,10 @@ class ModernMainWindow(QMainWindow):
         self.current_view = None
         self.toast_manager = None
         self.responsive_manager = None
+        
+        # 設置優化的插件管理器
+        self.setup_optimized_plugin_manager()
+        
         self.setup_ui()
         self.setup_toast_manager()
         self.setup_responsive_layout()
@@ -355,6 +375,19 @@ class ModernMainWindow(QMainWindow):
         self.load_plugins()
         self.apply_theme()
         self.restore_window_state()
+    
+    def setup_optimized_plugin_manager(self):
+        """暫時停用優化插件管理器，使用原始載入介面顯示進度"""
+        try:
+            # 暫時停用優化插件管理器，讓用戶能看到載入進度
+            # 這將強制使用 PluginLoadingDialog 來顯示載入進度
+            self.optimized_plugin_manager = None
+            logger.info("使用原始插件載入介面，顯示載入進度")
+            
+        except Exception as e:
+            logger.error(f"設置插件管理器失敗: {e}")
+            # 確保回退到原始插件管理器
+            self.optimized_plugin_manager = None
     
     def setup_ui(self):
         """設置主窗口 UI"""
@@ -503,25 +536,75 @@ class ModernMainWindow(QMainWindow):
         self.set_status("準備就緒", "ready")
     
     def load_plugins(self):
-        """載入插件 - 使用進度對話框"""
+        """載入插件 - 使用優化的插件管理器和進度對話框"""
         try:
             print("[DEBUG] 開始載入插件...")
             self.set_status("準備載入插件...", "processing")
             
-            # 創建並顯示插件載入對話框
-            print("[DEBUG] 創建插件載入對話框...")
-            loading_dialog = PluginLoadingDialog(plugin_manager, self)
-            loading_dialog.loading_completed.connect(self.on_plugins_loaded)
+            # 使用優化插件管理器還是原始管理器
+            manager_to_use = self.optimized_plugin_manager if self.optimized_plugin_manager else plugin_manager
+            print(f"[DEBUG] 使用 {'優化' if self.optimized_plugin_manager else '標準'} 插件管理器")
             
-            # 異步啟動載入
-            print("[DEBUG] 異步啟動插件載入...")
-            QTimer.singleShot(100, loading_dialog.start_loading)
+            # 如果有優化管理器，使用異步載入
+            if self.optimized_plugin_manager:
+                self.load_plugins_optimized()
+            else:
+                # 回退到原始載入對話框
+                print("[DEBUG] 創建插件載入對話框...")
+                loading_dialog = PluginLoadingDialog(plugin_manager, self)
+                loading_dialog.loading_completed.connect(self.on_plugins_loaded)
+                
+                # 異步啟動載入
+                print("[DEBUG] 異步啟動插件載入...")
+                QTimer.singleShot(100, loading_dialog.start_loading)
             
         except Exception as e:
             logger.error(f"Error starting plugin loading: {e}")
             print(f"[DEBUG] 插件載入啟動失敗: {e}")
             self.set_status(f"插件載入失敗: {str(e)}", "error")
             self.show_plugin_error(str(e))
+    
+    def load_plugins_optimized(self):
+        """使用優化插件管理器載入插件"""
+        try:
+            print("[DEBUG] 開始優化插件載入...")
+            start_time = time.time()
+            
+            # 創建異步載入任務
+            self.plugin_loading_timer = QTimer()
+            self.plugin_loading_timer.setSingleShot(True)
+            self.plugin_loading_timer.timeout.connect(self.start_async_plugin_loading)
+            self.plugin_loading_timer.start(100)
+            
+        except Exception as e:
+            logger.error(f"優化插件載入啟動失敗: {e}")
+            self.on_plugins_loaded(False, str(e))
+    
+    def start_async_plugin_loading(self):
+        """開始異步插件載入"""
+        try:
+            # 在背景執行異步載入
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            # 執行異步初始化
+            success, message, stats = loop.run_until_complete(
+                self.optimized_plugin_manager.initialize_async()
+            )
+            
+            loop.close()
+            
+            # 記錄性能統計
+            print(f"[DEBUG] 插件載入統計: {stats}")
+            logger.info(f"插件載入性能統計: {stats}")
+            
+            # 回調主線程
+            QTimer.singleShot(0, lambda: self.on_plugins_loaded(success, message))
+            
+        except Exception as e:
+            logger.error(f"異步插件載入失敗: {e}")
+            print(f"[DEBUG] 異步插件載入失敗: {e}")
+            QTimer.singleShot(0, lambda: self.on_plugins_loaded(False, str(e)))
     
     def on_plugins_loaded(self, success: bool, message: str):
         """處理插件載入完成"""
@@ -558,8 +641,9 @@ class ModernMainWindow(QMainWindow):
     def create_plugin_views_in_main_thread(self):
         """在主線程中創建插件視圖"""
         try:
-            # 獲取所有已註冊且可用的插件
-            available_plugins = plugin_manager.get_available_plugins()
+            # 使用適當的插件管理器獲取所有已註冊且可用的插件
+            manager_to_use = self.optimized_plugin_manager if self.optimized_plugin_manager else plugin_manager
+            available_plugins = manager_to_use.get_available_plugins()
             print(f"[DEBUG] 可用插件: {list(available_plugins.keys())}")
             
             for plugin_name, plugin in available_plugins.items():
@@ -576,8 +660,8 @@ class ModernMainWindow(QMainWindow):
                     print(f"   🎮 [DEBUG] 創建 {plugin_name} 控制器...")
                     controller = plugin.create_controller(model, view)
                     
-                    # 保存到插件管理器實例
-                    plugin_manager.plugin_instances[plugin_name] = {
+                    # 保存到適當的插件管理器實例
+                    manager_to_use.plugin_instances[plugin_name] = {
                         'plugin': plugin,
                         'model': model,
                         'view': view,
