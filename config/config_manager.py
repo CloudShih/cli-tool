@@ -10,8 +10,6 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-# 設置日誌
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

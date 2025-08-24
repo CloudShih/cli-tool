@@ -8,6 +8,9 @@ import sys
 import os
 from pathlib import Path
 
+from logging_setup import setup_logging
+setup_logging()
+
 # 確保專案根目錄在 Python 路徑中
 project_root = Path(__file__).parent
 if str(project_root) not in sys.path:
