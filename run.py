@@ -1,20 +1,12 @@
 #!/usr/bin/env python3
-"""
-CLI Tool 應用程式啟動腳本
-提供統一的啟動入口點
+"""CLI Tool 應用程式啟動腳本。
+
+這個腳本不再修改 ``sys.path`` 或 ``PYTHONPATH``，
+取而代之的是依賴於 package 安裝時設定的入口點。
 """
 
 import sys
-import os
-from pathlib import Path
 
-# 確保專案根目錄在 Python 路徑中
-project_root = Path(__file__).parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-# 設置環境變數
-os.environ['PYTHONPATH'] = str(project_root)
 
 def main():
     """主函數"""

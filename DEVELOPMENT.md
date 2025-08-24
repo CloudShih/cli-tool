@@ -18,7 +18,7 @@ pip install -r requirements-dev.txt
 python test_simple.py
 
 # 5. 運行應用程式
-python run.py
+cli-tool
 ```
 
 ## 🏗️ 專案架構
@@ -41,7 +41,7 @@ cli_tool/
 ├── static/                 # 靜態資源
 ├── tests/                  # 測試文件
 ├── main_app.py             # 主應用程式
-├── run.py                  # 啟動腳本
+├── run.py                  # 開發者啟動腳本
 ├── build.py                # 打包腳本
 ├── cli_tool.spec           # PyInstaller 配置
 └── setup.py                # 安裝配置
@@ -203,7 +203,7 @@ pytest tests/
 
 ### 開發模式運行
 ```bash
-python run.py
+cli-tool
 ```
 
 ### 打包為執行檔

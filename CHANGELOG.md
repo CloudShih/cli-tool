@@ -232,7 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 │   └── poppler/plugin.py
 ├── build.py                 # 自動化打包
 ├── cli_tool.spec           # PyInstaller 配置
-├── run.py                  # 統一啟動入口
+├── run.py                  # 開發者啟動腳本
 └── test_*.py               # 測試腳本
 ```
 
@@ -252,7 +252,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### 從 v1.x 升級到 v2.0
 1. **配置遷移**: 舊的硬編碼設定需遷移到 `config/cli_tool_config.json`
-2. **啟動方式**: 建議使用 `python run.py` 作為統一入口
+2. **啟動方式**: 建議使用 `cli-tool` 指令作為統一入口
 3. **依賴安裝**: 執行 `pip install -r requirements.txt`
 4. **功能驗證**: 運行 `python test_simple.py` 驗證升級結果
 

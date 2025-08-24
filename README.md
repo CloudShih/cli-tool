@@ -189,10 +189,10 @@ pip install -r requirements-dev.txt
 
 ### 2. 運行應用程式
 ```bash
-# 方法 1: 使用啟動腳本
-python run.py
+# 安裝後使用 CLI 指令
+cli-tool
 
-# 方法 2: 直接運行主程式
+# 開發模式（直接運行主程式）
 python main_app.py
 ```
 
@@ -242,7 +242,7 @@ pyinstaller --onefile --windowed main_app.py
 ```
 cli_tool/
 ├── main_app.py              # 主應用程式
-├── run.py                   # 啟動腳本
+├── run.py                   # 開發者啟動腳本
 ├── build.py                 # 自動化打包腳本
 ├── cli_tool.spec            # PyInstaller 配置文件
 ├── setup.py                 # 套件安裝配置
